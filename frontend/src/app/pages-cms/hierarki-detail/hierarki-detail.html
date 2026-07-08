@@ -1,0 +1,13 @@
+<div *ngIf="struktur" class="card">
+  <h2>{{ struktur.nama_jabatan }}</h2>
+  <p><strong>Nama Pegawai:</strong> {{ struktur.nama_pegawai }}</p>
+  <p><strong>Jabatan:</strong> {{ struktur.nama_jabatan }}</p>
+<div class="text-preline mb-3">
+  <p><strong>Pendidikan:</strong><br>{{ struktur.pendidikan }}</p>
+  <p><strong>Pengalaman Jabatan:</strong><br>{{ struktur.pengalaman_jabatan }}</p>
+  <p><strong>Pengalaman Organisasi:</strong><br>{{ struktur.pengalaman_organisasi }}</p>
+</div>
+  <p [innerHTML]="'<strong>Deskripsi</strong>:' + (struktur.deskripsi)"></p>
+  <p><strong>Status:</strong> {{ getStatusLabel(struktur.status) }}</p>
+ <p-button label="Kembali" routerLink="/pages/hierarki" />
+</div>

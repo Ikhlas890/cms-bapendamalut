@@ -1,0 +1,91 @@
+<div class="card">
+    <p-table
+        #dt
+        [value]="pengaduanList"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5,10,20]"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        [globalFilterFields]="['nama_jabatan','nama_pegawai']"
+        [sortField]="'nama_jabatan'"
+        [sortOrder]="1"
+        class="p-datatable-gridlines p-datatable-sm"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                <th>Judul Laporan</th>
+                <th>Isi Laporan</th>
+                <th>Aksi</th>
+            </tr>
+        </ng-template>
+        <!-- Search -->
+        <ng-template pTemplate="caption">
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Struktur Organisasi</h5>
+                <p-iconfield>
+                    <p-inputicon class="pi pi-search" />
+                    <input pInputText type="text" placeholder="Search" (input)="onGlobalFilter(dt, $event)" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        <!-- End Search -->
+        <ng-template pTemplate="body" let-pengaduan>
+            <tr>
+                <td>{{ pengaduan.email }}</td>
+                <td>{{ pengaduan.judul_laporan }}</td>
+                <td>{{ pengaduan.isi_laporan | slice:0:50 }}...</td>
+                <td>
+                    <button pButton icon="pi pi-eye" class="p-button-text p-button-sm mr-2" (click)="showDetail(pengaduan)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <!-- DIALOG DETAIL PENGADUAN -->
+    <p-dialog header="Detail Pengaduan" [(visible)]="detailDialogVisible" [modal]="true" [style]="{ width: '40vw' }" [closable]="true" [draggable]="false" [resizable]="false">
+        <ng-container *ngIf="selectedPengaduan">
+            <div class="card flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label><strong>Email:</strong></label>
+                    <p>{{ selectedPengaduan.email }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label><strong>Judul Laporan:</strong></label>
+                    <p>{{ selectedPengaduan.judul_laporan }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label><strong>Isi Laporan:</strong></label>
+                    <p style="white-space: pre-line">{{ selectedPengaduan.isi_laporan }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label><strong>Tanggal Kejadian:</strong></label>
+                    <p>{{ selectedPengaduan.tanggal_kejadian | date:'dd MMM yyyy' }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label><strong>Lokasi Kejadian:</strong></label>
+                    <p>{{ selectedPengaduan.lokasi_kejadian }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label><strong>Kategori:</strong></label>
+                    <p>{{ selectedPengaduan.kategori_laporan }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label><strong>Status Pengadu:</strong></label>
+                    <p>{{ selectedPengaduan.status_pengadu }}</p>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-template pTemplate="footer">
+            <button pButton label="Tutup" icon="pi pi-times" (click)="detailDialogVisible=false"></button>
+        </ng-template>
+    </p-dialog>
+</div>

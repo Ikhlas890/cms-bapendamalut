@@ -1,0 +1,107 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="card">
+    <div class="flex justify-between mb-3">
+        <p-button label="Tambah" icon="pi pi-plus" (click)="openAdd()"></p-button>
+    </div>
+
+    <p-table
+        #dt
+        [value]="struktur"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5,10,20]"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        [globalFilterFields]="['nama_jabatan','nama_pegawai']"
+        [sortField]="'nama_jabatan'"
+        [sortOrder]="1"
+        class="p-datatable-gridlines p-datatable-sm"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="nama_jabatan">Nama Jabatan <p-sortIcon field="nama_jabatan"></p-sortIcon></th>
+                <th>Nama Pegawai</th>
+                <th>Aksi</th>
+            </tr>
+        </ng-template>
+        <!-- Search -->
+        <ng-template pTemplate="caption">
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Struktur Organisasi</h5>
+                <p-iconfield>
+                    <p-inputicon class="pi pi-search" />
+                    <input pInputText type="text" placeholder="Search" (input)="onGlobalFilter(dt, $event)" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        <!-- End Search -->
+        <ng-template pTemplate="body" let-struktur>
+            <tr>
+                <td>{{ struktur.nama_jabatan }}</td>
+                <td>{{ struktur.nama_pegawai }}</td>
+                <td>
+                    <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm mr-2" (click)="openEdit(struktur)"></button>
+                    <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="delete(struktur)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog header="{{ dialogTitle }}" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '900px' }">
+    <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="card flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+                <label>Nama Jabatan</label>
+                <input pInputText formControlName="nama_jabatan" />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Nama Pegawai</label>
+                <input pInputText formControlName="nama_pegawai" />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Parent Id</label>
+                <p-select [options]="parentOptions" formControlName="parent_id" optionLabel="label" optionValue="value" placeholder="Pilih nama jabatan"></p-select>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Deskripsi (profil):</label>
+                <div class="NgxEditor__Wrapper">
+                    <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+                    <ngx-editor class="custom-editor" [editor]="editor" formControlName="deskripsi" placeholder="Tulis deskripsi atau profil di sini..."></ngx-editor>
+                </div>
+            </div>
+               <!-- Pendidikan -->
+    <div class="flex flex-col gap-2">
+        <label>Pendidikan</label>
+        <textarea pInputTextarea formControlName="pendidikan" rows="3" autoResize="true" placeholder="Tulis pendidikan secara lengkap"></textarea>
+    </div>
+
+    <!-- Pengalaman Jabatan -->
+    <div class="flex flex-col gap-2">
+        <label>Pengalaman Jabatan</label>
+        <textarea pInputTextarea formControlName="pengalaman_jabatan" rows="3" autoResize="true" placeholder="Tulis pengalaman jabatan yang relevan"></textarea>
+    </div>
+
+    <!-- Pengalaman Organisasi -->
+    <div class="flex flex-col gap-2">
+        <label>Pengalaman Organisasi</label>
+        <textarea pInputTextarea formControlName="pengalaman_organisasi" rows="3" autoResize="true" placeholder="Tulis pengalaman organisasi yang relevan"></textarea>
+    </div>
+            <div class="flex flex-col gap-2">
+                <label>Status</label>
+                <p-select [options]="statusOptions" formControlName="status" optionLabel="label" optionValue="value" placeholder="Pilih status"></p-select>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Foto</label>
+                <p-fileUpload name="file" mode="basic" chooseLabel="Pilih Gambar" chooseIcon="pi pi-upload" auto="false" (onSelect)="onFileSelect($event)" [maxFileSize]="2000000" accept="image/*"></p-fileUpload>
+            </div>
+
+            <div class="flex justify-end mt-3">
+                <button pButton type="button" label="Batal" class="p-button-text mr-2" (click)="dialogVisible=false"></button>
+                <button pButton type="submit" label="Simpan" [disabled]="form.invalid"></button>
+            </div>
+        </div>
+    </form>
+</p-dialog>

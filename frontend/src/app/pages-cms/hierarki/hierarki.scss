@@ -1,0 +1,98 @@
+.node-content {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 10px;
+  background-color: #f4f4f4;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.node-content .title {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.node-content .name {
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.node-content .desc {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 2px;
+}
+
+
+.chart-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  height: 80vh;
+  white-space: nowrap;
+}
+
+/* Biarkan chart tetap di tengah */
+:host ::ng-deep .p-organizationchart {
+  display: inline-block;
+}
+
+
+
+// .chart-wrapper {
+//   width: 100%;
+//   height: 90vh; // harus ada tinggi
+//   overflow: hidden;
+// }
+
+
+// /* Table pusat */
+// ::ng-deep .org-chart-custom .p-organizationchart-table {
+//   margin-left: auto;
+//   margin-right: auto;
+// }
+
+// /* Pastikan kotak node punya lebar tetap */
+// .node-box {
+//   width: 220px;             
+//   min-height: 70px;
+//   background: #fff;
+//   border: 1px solid #bbb;
+//   border-radius: 4px;
+//   padding: 8px;
+//   text-align: center;
+//   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+
+//   white-space: normal;   
+//   word-break: break-word;    
+//   overflow-wrap: break-word; 
+// }
+
+// .title {
+//   font-weight: 600;
+//   margin-bottom: 4px;
+//   font-size: 14px;
+// }
+
+// .name {
+//   font-size: 13px;
+//   color: #333;
+// }
+
+
+// /* Garis penghubung agar lebih tipis dan rapi */
+// ::ng-deep .p-organizationchart-lines td {
+//   height: 20px;
+// }
+
+// .org-chart-outer {
+//   overflow: auto;               // scroll aktif
+//   justify-content: center;
+// }
+
+// .org-chart-inner {
+//   // transform: scale(0.8);        
+//   transform: scale(calc(100vw / 2000)); 
+//   transform-origin: top center;
+//   display: inline-block;        // penting biar ukuran ikut skala
+// }
+

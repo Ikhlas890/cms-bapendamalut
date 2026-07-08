@@ -1,0 +1,29 @@
+<div #chartContainer class="chart-container">
+<p-organizationChart [value]="dataTree" selectionMode="single" (onNodeSelect)="onNodeSelect($event)" *ngIf="!loading">
+  <ng-template let-node pTemplate="person">
+    <div class="node-content">
+      <div class="title">{{ node.data.nama_jabatan }}</div>
+      <div class="name">{{ node.data.nama_pegawai }}</div>
+    </div>
+  </ng-template>
+</p-organizationChart>
+</div>
+
+<p *ngIf="loading">Memuat struktur organisasi...</p>
+
+
+<!-- <div #chartContainer class="chart-wrapper"></div> -->
+
+<!-- <div class="org-chart-outer">
+    <div class="org-chart-inner">
+        <p-organizationChart [value]="treeData" selectionMode="single">
+            <ng-template let-node pTemplate="person">
+                <div class="node-box">
+                    <div class="title">{{ node.data.jabatan }}</div>
+                    <div class="name">{{ node.data.pegawai }}</div>
+                </div>
+            </ng-template>
+        </p-organizationChart>
+    </div>
+</div> -->
+

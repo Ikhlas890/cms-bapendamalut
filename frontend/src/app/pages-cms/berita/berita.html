@@ -1,0 +1,91 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="card">
+    <div class="flex justify-between mb-3">
+        <p-button label="Tambah" icon="pi pi-plus" (click)="openAdd()"></p-button>
+    </div>
+
+    <p-table
+        #dt
+        [value]="posts"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5,10,20]"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        [globalFilterFields]="['judul_berita','sumber_berita']"
+        [sortField]="'judul_berita'"
+        [sortOrder]="1"
+        class="p-datatable-gridlines p-datatable-sm"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="judul_berita">Judul <p-sortIcon field="judul_berita"></p-sortIcon></th>
+                <th>Tanggal</th>
+                <th>Sumber</th>
+                <th>Aksi</th>
+            </tr>
+        </ng-template>
+        <!-- Search -->
+        <ng-template pTemplate="caption">
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Berita</h5>
+                <p-iconfield>
+                    <p-inputicon class="pi pi-search" />
+                    <input pInputText type="text" placeholder="Search" (input)="onGlobalFilter(dt, $event)" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        <!-- End Search -->
+        <ng-template pTemplate="body" let-post>
+            <tr>
+                <td>{{ post.judul_berita }}</td>
+                <td>{{ post.tanggal_berita | date }}</td>
+                <td>{{ post.sumber_berita }}</td>
+                <td>
+                    <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm mr-2" (click)="openEdit(post)"></button>
+                    <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="delete(post)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog header="{{ dialogTitle }}" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '900px' }">
+    <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="card flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+                <label>Judul</label>
+                <input pInputText formControlName="judul_berita" />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Tanggal</label>
+                <p-datepicker formControlName="tanggal_berita" dateFormat="yy-mm-dd"></p-datepicker>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Isi Berita:</label>
+                <div class="NgxEditor__Wrapper">
+                    <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+                    <ngx-editor class="custom-editor" [editor]="editor" formControlName="isi_berita" placeholder="Tulis isi berita di sini..."></ngx-editor>
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Sumber</label>
+                <input pInputText formControlName="sumber_berita" />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Gambar</label>
+                <p-fileUpload #uploader name="file" mode="basic" chooseLabel="Pilih Gambar" chooseIcon="pi pi-upload" (onSelect)="onFileSelect($event)" [maxFileSize]="2000000" accept="image/*"> </p-fileUpload>
+                <div *ngIf="selectedId && currentImageUrl" class="mt-2">
+                    <img [src]="currentImageUrl" alt="Gambar berita" width="120" class="rounded shadow" />
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-3">
+                <button pButton type="button" label="Batal" class="p-button-text mr-2" (click)="dialogVisible=false"></button>
+                <button pButton type="submit" label="Simpan" [disabled]="form.invalid"></button>
+            </div>
+        </div>
+    </form>
+</p-dialog>

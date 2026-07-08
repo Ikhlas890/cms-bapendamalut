@@ -1,0 +1,68 @@
+const db = require('../config/db');
+
+const AdminModel = {
+  async findByUsername(username) {
+    const [rows] = await db.query('SELECT * FROM admins WHERE username = ?', [username]);
+    return rows[0];
+  },
+
+  async createAdmin({ username, password, client_id }) {
+    const [result] = await db.query(
+      'INSERT INTO admins (username, password, client_id) VALUES (?, ?, ?)',
+      [username, password, client_id]
+    );
+    return result;
+  },
+
+  async updateAdmin(id, { username, password, client_id }) {
+    // Update password hanya jika ada value, biar tidak overwrite dengan null
+    if (password) {
+      const [result] = await db.query(
+        'UPDATE admins SET username = ?, password = ?, client_id = ? WHERE id = ?',
+        [username, password, client_id, id]
+      );
+      return result;
+    } else {
+      const [result] = await db.query(
+        'UPDATE admins SET username = ?, client_id = ? WHERE id = ?',
+        [username, client_id, id]
+      );
+      return result;
+    }
+  },
+
+  async deleteAdmin(id) {
+    const [result] = await db.query('DELETE FROM admins WHERE id = ?', [id]);
+    return result;
+  },
+
+  async getAllAdmins({ username, nama_instansi }) {
+    let query = `
+      SELECT 
+        a.id, 
+        a.username, 
+        a.client_id, 
+        c.nama_instansi, 
+        c.slug
+      FROM admins a
+      JOIN clients c ON a.client_id = c.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (username) {
+      query += ' AND a.username LIKE ?';
+      params.push(`%${username}%`);
+    }
+
+    if (nama_instansi) {
+      query += ' AND c.nama_instansi LIKE ?';
+      params.push(`%${nama_instansi}%`);
+    }
+
+    const [rows] = await db.query(query, params);
+    return rows;
+  }
+};
+
+module.exports = AdminModel;
