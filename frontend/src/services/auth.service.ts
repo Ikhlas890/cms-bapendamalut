@@ -5,7 +5,7 @@ import { BehaviorSubject, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'https://api-malut-cms.intermatika.id/api/auth';
+  private apiUrl = 'http://localhost:3000/api/auth';
   isLoggedIn$ = new BehaviorSubject<boolean>(false); // reactive approach
   admin$ = new BehaviorSubject<any>(null);
 

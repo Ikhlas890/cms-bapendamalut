@@ -6,10 +6,11 @@ const dbPool = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    dateStrings: true, // ✅ penting!
+    port: process.env.PORT || 3306,
+    dateStrings: true, 
     waitForConnections: true,
-    connectionLimit: 10,  // Jumlah koneksi maksimal yang dapat dibuat
-    queueLimit: 0  // Tidak ada batasan antrean
+    connectionLimit: 10, 
+    queueLimit: 0  
 });
 
 dbPool.getConnection((err, connection) => {

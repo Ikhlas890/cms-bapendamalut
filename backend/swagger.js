@@ -14,6 +14,42 @@ const options = {
         url: 'http://localhost:3000',
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+      schemas: {
+        UserCms: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              example: 1,
+            },
+            username: {
+              type: 'string',
+              example: 'operator-bapenda',
+            },
+            client_id: {
+              type: 'integer',
+              example: 2,
+            },
+            nama_instansi: {
+              type: 'string',
+              example: 'Bapenda Maluku Utara',
+            },
+            slug: {
+              type: 'string',
+              example: 'bapenda-maluku-utara',
+            },
+          },
+        },
+      },
+    },
   },
   apis: ['./routes/*.js'], // lokasi file route
 };

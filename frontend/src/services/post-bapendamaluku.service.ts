@@ -13,7 +13,7 @@ export interface Post {
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
-  private apiUrl = 'https://api-malut-cms.intermatika.id/api/posts';
+  private apiUrl = 'http://localhost:3000/api/posts';
 
   constructor(private http: HttpClient) { }
 

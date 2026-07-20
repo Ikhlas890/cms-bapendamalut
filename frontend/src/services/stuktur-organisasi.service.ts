@@ -17,7 +17,7 @@ export interface Data {
 
 @Injectable({ providedIn: 'root' })
 export class StrukturOrganisasiService {
-  private apiUrl = 'https://api-malut-cms.intermatika.id/api/struktur-organisasi';
+  private apiUrl = 'http://localhost:3000/api/struktur-organisasi';
 
   constructor(private http: HttpClient) { }
 

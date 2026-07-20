@@ -15,7 +15,7 @@ export interface Pengaduan {
 
 @Injectable({ providedIn: 'root' })
 export class PengaduanService {
-  private apiUrl = 'https://api-malut-cms.intermatika.id/api/pengaduan'; 
+  private apiUrl = 'http://localhost:3000/api/pengaduan'; 
 
   constructor(private http: HttpClient) {}
 

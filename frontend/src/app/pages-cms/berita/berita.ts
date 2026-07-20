@@ -136,7 +136,7 @@ export class Berita {
     });
 
     this.currentImageUrl = post.gambar_berita
-      ? `https://api-malut-cms.intermatika.id/uploads/berita/${post.gambar_berita}`
+      ? `http://localhost:3000/uploads/berita/${post.gambar_berita}`
       : null;
 
     this.dialogVisible = true;
