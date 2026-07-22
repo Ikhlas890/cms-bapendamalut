@@ -48,6 +48,204 @@ const options = {
             },
           },
         },
+        Menu: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              example: 1,
+            },
+            nama_menu: {
+              type: 'string',
+              example: 'Dashboard',
+            },
+            slug: {
+              type: 'string',
+              example: 'dashboard',
+            },
+            url: {
+              type: 'string',
+              example: '/dashboard',
+            },
+            icon: {
+              type: 'string',
+              nullable: true,
+              example: 'pi pi-home',
+            },
+            parent_id: {
+              type: 'integer',
+              nullable: true,
+              example: null,
+            },
+            urutan: {
+              type: 'integer',
+              example: 1,
+            },
+            status: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+            created_at: {
+              type: 'string',
+              example: '2026-07-22 10:30:00',
+            },
+            updated_at: {
+              type: 'string',
+              example: '2026-07-22 10:30:00',
+            },
+          },
+        },
+        MenuInput: {
+          type: 'object',
+          required: ['nama_menu', 'slug', 'url'],
+          properties: {
+            nama_menu: {
+              type: 'string',
+              example: 'Dashboard',
+            },
+            slug: {
+              type: 'string',
+              example: 'dashboard',
+            },
+            url: {
+              type: 'string',
+              example: '/dashboard',
+            },
+            icon: {
+              type: 'string',
+              nullable: true,
+              example: 'pi pi-home',
+            },
+            parent_id: {
+              type: 'integer',
+              nullable: true,
+              example: null,
+            },
+            urutan: {
+              type: 'integer',
+              example: 1,
+            },
+            status: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+          },
+        },
+        RolePermission: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              example: 1,
+            },
+            client_id: {
+              type: 'integer',
+              example: 2,
+            },
+            nama_instansi: {
+              type: 'string',
+              example: 'Bapenda Maluku Utara',
+            },
+            client_slug: {
+              type: 'string',
+              example: 'bapenda-maluku-utara',
+            },
+            menu_id: {
+              type: 'integer',
+              example: 1,
+            },
+            nama_menu: {
+              type: 'string',
+              example: 'Dashboard',
+            },
+            menu_slug: {
+              type: 'string',
+              example: 'dashboard',
+            },
+            url: {
+              type: 'string',
+              example: '/dashboard',
+            },
+            icon: {
+              type: 'string',
+              nullable: true,
+              example: 'pi pi-home',
+            },
+            parent_id: {
+              type: 'integer',
+              nullable: true,
+              example: null,
+            },
+            urutan: {
+              type: 'integer',
+              example: 1,
+            },
+            can_view: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+            can_create: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+            can_update: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+            can_delete: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 0,
+            },
+            created_at: {
+              type: 'string',
+              example: '2026-07-22 10:30:00',
+            },
+            updated_at: {
+              type: 'string',
+              example: '2026-07-22 10:30:00',
+            },
+          },
+        },
+        RolePermissionInput: {
+          type: 'object',
+          required: ['client_id', 'menu_id'],
+          properties: {
+            client_id: {
+              type: 'integer',
+              example: 2,
+            },
+            menu_id: {
+              type: 'integer',
+              example: 1,
+            },
+            can_view: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+            can_create: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+            can_update: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+            can_delete: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 0,
+            },
+          },
+        },
       },
     },
   },

@@ -8,6 +8,8 @@ const pengaduanRoutes = require('./routes/pengaduanRoutes');
 const authRoutes = require('./routes/authRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const clientRoutes = require('./routes/clientRoutes');
+const menuRoutes = require('./routes/menuRoutes');
+const rolePermissionRoutes = require('./routes/rolePermissionRoutes');
 const { swaggerUi, specs } = require('./swagger');
 const app = express();
 
@@ -29,6 +31,9 @@ app.use('/api/pengaduan', pengaduanRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/clients', clientRoutes);
+app.use('/api/menus', menuRoutes);
+app.use('/api/role-permissions', rolePermissionRoutes);
+app.use('/api/role_permissions', rolePermissionRoutes);
 
 // app.use('/uploads', express.static('uploads'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -28,6 +28,8 @@ export class AppMenu {
                 label: 'Pages',
                 items: [
                     { label: 'Berita', icon: 'pi pi-fw pi-book', routerLink: ['/pages/berita'] },
+                    { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/pages/users'] },
+                    { label: 'Group Users', icon: 'pi pi-fw pi-users', routerLink: ['/pages/group-users'] },
                     // { label: 'Daftar Pengaduan', icon: 'pi pi-fw pi-envelope', routerLink: ['/pages/daftar-pengaduan'] },
                     // {
                     //     label: 'Struktur Organisasi',
