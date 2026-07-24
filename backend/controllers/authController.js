@@ -15,6 +15,15 @@ function getTokenFromRequest(req) {
   return req.cookies?.token || bearerToken;
 }
 
+function normalizeStatus(status, defaultValue) {
+  if (status === undefined || status === null || status === '') return defaultValue;
+
+  const normalized = Number(status);
+  if (![0, 1].includes(normalized)) return NaN;
+
+  return normalized;
+}
+
 exports.login = async (req, res) => {
   const { username, password } = req.body;
 
@@ -24,7 +33,7 @@ exports.login = async (req, res) => {
 
   try {
     const [rows] = await db.query(
-      `SELECT a.id, a.username, a.password, a.client_id, c.nama_instansi
+      `SELECT a.id, a.username, a.password, a.client_id, a.status, c.nama_instansi
        FROM admins a
        JOIN clients c ON a.client_id = c.id
        WHERE a.username = ?`,
@@ -34,6 +43,10 @@ exports.login = async (req, res) => {
     const admin = rows[0];
     if (!admin) return res.status(401).json({ message: 'Akun tidak ditemukan' });
 
+    if (admin.status === 0) {
+      return res.status(403).json({ message: 'User telah dinonaktifkan' });
+    }
+
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(401).json({ message: 'Password salah' });
 
@@ -42,7 +55,8 @@ exports.login = async (req, res) => {
         id: admin.id,
         username: admin.username,
         client_id: admin.client_id,
-        nama_instansi: admin.nama_instansi
+        nama_instansi: admin.nama_instansi,
+        status: admin.status
       },
       secret,
       { expiresIn: '1d' }
@@ -59,6 +73,7 @@ exports.login = async (req, res) => {
       username: admin.username,
       client_id: admin.client_id,
       nama_instansi: admin.nama_instansi,
+      status: admin.status,
       token
     });
   } catch (err) {
@@ -84,10 +99,15 @@ exports.me = (req, res) => {
 };
 
 exports.addUser = async (req, res) => {
-  const { username, password, client_id } = req.body;
+  const { username, password, client_id, status } = req.body;
+  const normalizedStatus = normalizeStatus(status, 1);
 
   if (!username || !password || !client_id) {
     return res.status(400).json({ message: 'Username, password, dan client_id wajib diisi' });
+  }
+
+  if (Number.isNaN(normalizedStatus)) {
+    return res.status(400).json({ message: 'status harus bernilai 0 atau 1' });
   }
 
   try {
@@ -102,7 +122,12 @@ exports.addUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await AdminModel.createAdmin({ username, password: hashedPassword, client_id });
+    const result = await AdminModel.createAdmin({
+      username,
+      password: hashedPassword,
+      client_id,
+      status: normalizedStatus
+    });
     const user = await AdminModel.findById(result.insertId);
 
     res.status(201).json({
@@ -116,10 +141,15 @@ exports.addUser = async (req, res) => {
 
 exports.editUser = async (req, res) => {
   const { id } = req.params;
-  const { username, password, client_id } = req.body;
+  const { username, password, client_id, status } = req.body;
+  const normalizedStatus = normalizeStatus(status, undefined);
 
   if (!username || !client_id) {
     return res.status(400).json({ message: 'Username dan client_id wajib diisi' });
+  }
+
+  if (Number.isNaN(normalizedStatus)) {
+    return res.status(400).json({ message: 'status harus bernilai 0 atau 1' });
   }
 
   try {
@@ -146,7 +176,8 @@ exports.editUser = async (req, res) => {
     await AdminModel.updateAdmin(id, {
       username,
       password: hashedPassword,
-      client_id
+      client_id,
+      status: normalizedStatus ?? existingUser.status ?? 1
     });
 
     const user = await AdminModel.findById(id);

@@ -12,6 +12,7 @@ const AdminModel = {
         a.id,
         a.username,
         a.client_id,
+        a.status,
         c.nama_instansi,
         c.slug
       FROM admins a
@@ -40,26 +41,26 @@ const AdminModel = {
     return rows.length > 0;
   },
 
-  async createAdmin({ username, password, client_id }) {
+  async createAdmin({ username, password, client_id, status }) {
     const [result] = await db.query(
-      'INSERT INTO admins (username, password, client_id) VALUES (?, ?, ?)',
-      [username, password, client_id]
+      'INSERT INTO admins (username, password, client_id, status) VALUES (?, ?, ?, ?)',
+      [username, password, client_id, status]
     );
     return result;
   },
 
-  async updateAdmin(id, { username, password, client_id }) {
+  async updateAdmin(id, { username, password, client_id, status }) {
     // Update password hanya jika ada value, biar tidak overwrite dengan null
     if (password) {
       const [result] = await db.query(
-        'UPDATE admins SET username = ?, password = ?, client_id = ? WHERE id = ?',
-        [username, password, client_id, id]
+        'UPDATE admins SET username = ?, password = ?, client_id = ?, status = ? WHERE id = ?',
+        [username, password, client_id, status, id]
       );
       return result;
     } else {
       const [result] = await db.query(
-        'UPDATE admins SET username = ?, client_id = ? WHERE id = ?',
-        [username, client_id, id]
+        'UPDATE admins SET username = ?, client_id = ?, status = ? WHERE id = ?',
+        [username, client_id, status, id]
       );
       return result;
     }
@@ -76,6 +77,7 @@ const AdminModel = {
         a.id, 
         a.username, 
         a.client_id, 
+        a.status,
         c.nama_instansi, 
         c.slug
       FROM admins a

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -9,8 +9,10 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table, TableModule } from 'primeng/table';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { AccessControlService, CrudPermission } from 'src/services/access-control.service';
 import { Client, ClientService } from 'src/services/client.service';
 import { UserCms, UserService } from 'src/services/user.service';
@@ -28,6 +30,8 @@ import { UserCms, UserService } from 'src/services/user.service';
     ButtonModule,
     InputTextModule,
     SelectModule,
+    TagModule,
+    ToggleSwitchModule,
     InputIconModule,
     IconFieldModule
   ],
@@ -36,11 +40,15 @@ import { UserCms, UserService } from 'src/services/user.service';
   styleUrl: './users.scss'
 })
 export class Users {
-  @ViewChild('dt') dt!: Table;
-
   users: UserCms[] = [];
   clients: Client[] = [];
   clientOptions: { label: string; value: number }[] = [];
+  searchField: 'username' | 'nama_instansi' = 'username';
+  searchFieldOptions = [
+    { label: 'Username', value: 'username' },
+    { label: 'Nama Instansi', value: 'nama_instansi' }
+  ];
+  searchKeyword = '';
   form!: FormGroup;
   dialogVisible = false;
   dialogTitle = 'Tambah User';
@@ -67,21 +75,23 @@ export class Users {
     this.loadPermission();
   }
 
-  onGlobalFilter(table: Table, event: Event) {
-    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-  }
-
   initForm() {
     this.form = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
-      client_id: [null, Validators.required]
+      client_id: [null, Validators.required],
+      status: [true]
     });
   }
 
   loadUsers() {
     this.loading = true;
-    this.userService.getUsers().subscribe({
+    const keyword = this.searchKeyword.trim();
+
+    this.userService.getUsers({
+      username: this.searchField === 'username' ? keyword : '',
+      nama_instansi: this.searchField === 'nama_instansi' ? keyword : ''
+    }).subscribe({
       next: (res) => {
         this.users = res;
         this.loading = false;
@@ -91,6 +101,16 @@ export class Users {
         this.msg.add({ severity: 'error', summary: 'Error', detail: 'Gagal memuat users' });
       }
     });
+  }
+
+  onSearch() {
+    this.loadUsers();
+  }
+
+  clearSearch() {
+    this.searchField = 'username';
+    this.searchKeyword = '';
+    this.loadUsers();
   }
 
   loadPermission() {
@@ -141,7 +161,7 @@ export class Users {
 
     this.dialogTitle = 'Tambah User';
     this.selectedId = undefined;
-    this.form.reset();
+    this.form.reset({ status: true });
     this.form.get('password')?.setValidators(Validators.required);
     this.form.get('password')?.updateValueAndValidity();
     this.dialogVisible = true;
@@ -160,9 +180,18 @@ export class Users {
     this.form.patchValue({
       username: user.username,
       password: '',
-      client_id: user.client_id
+      client_id: user.client_id,
+      status: user.status !== 0
     });
     this.dialogVisible = true;
+  }
+
+  getStatusLabel(status?: number): string {
+    return status === 1 ? 'Aktif' : 'Nonaktif';
+  }
+
+  getStatusSeverity(status?: number): 'success' | 'secondary' {
+    return status === 1 ? 'success' : 'secondary';
   }
 
   save() {
@@ -174,7 +203,8 @@ export class Users {
     const payload = {
       username: this.form.value.username,
       password: this.form.value.password,
-      client_id: this.form.value.client_id
+      client_id: this.form.value.client_id,
+      status: this.form.value.status ? 1 : 0
     };
 
     const request = this.selectedId

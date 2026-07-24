@@ -46,6 +46,12 @@ const options = {
               type: 'string',
               example: 'bapenda-maluku-utara',
             },
+            status: {
+              type: 'integer',
+              enum: [0, 1],
+              description: 'Status user/admin. 1 aktif, 0 tidak aktif.',
+              example: 1,
+            },
           },
         },
         Menu: {

@@ -14,24 +14,38 @@
         [rowsPerPageOptions]="[5,10,20]"
         [loading]="loading"
         responsiveLayout="scroll"
-        [globalFilterFields]="['username','nama_instansi']"
         [sortField]="'username'"
         [sortOrder]="1"
         class="p-datatable-gridlines p-datatable-sm"
     >
         <ng-template pTemplate="caption">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <h5 class="m-0">Users</h5>
-                <p-iconfield>
-                    <p-inputicon class="pi pi-search" />
-                    <input pInputText type="text" placeholder="Search" (input)="onGlobalFilter(dt, $event)" />
-                </p-iconfield>
+                <div class="flex flex-col gap-2 md:flex-row md:items-center">
+                    <p-select
+                        [options]="searchFieldOptions"
+                        [(ngModel)]="searchField"
+                        optionLabel="label"
+                        optionValue="value"
+                        appendTo="body"
+                        [style]="{ width: '180px' }"
+                    ></p-select>
+                    <p-iconfield>
+                        <p-inputicon class="pi pi-search" />
+                        <input pInputText type="text" placeholder="Masukkan kata kunci" [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()" />
+                    </p-iconfield>
+                    <div class="flex gap-2">
+                        <p-button label="Cari" icon="pi pi-search" (click)="onSearch()"></p-button>
+                        <p-button label="Reset" icon="pi pi-refresh" severity="secondary" outlined (click)="clearSearch()"></p-button>
+                    </div>
+                </div>
             </div>
         </ng-template>
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="username">Username <p-sortIcon field="username"></p-sortIcon></th>
                 <th pSortableColumn="nama_instansi">Group User <p-sortIcon field="nama_instansi"></p-sortIcon></th>
+                <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
                 <th *ngIf="permission.can_update || permission.can_delete">Aksi</th>
             </tr>
         </ng-template>
@@ -39,6 +53,9 @@
             <tr>
                 <td>{{ user.username }}</td>
                 <td>{{ user.nama_instansi }}</td>
+                <td>
+                    <p-tag [value]="getStatusLabel(user.status)" [severity]="getStatusSeverity(user.status)"></p-tag>
+                </td>
                 <td *ngIf="permission.can_update || permission.can_delete">
                     <button *ngIf="permission.can_update" pButton icon="pi pi-pencil" class="p-button-text p-button-sm mr-2" (click)="openEdit(user)"></button>
                     <button *ngIf="permission.can_delete" pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="delete(user)"></button>
@@ -71,6 +88,13 @@
                     [style]="{ width: '100%' }"
                     [panelStyle]="{ 'min-width': '100%', 'max-height': '280px' }"
                 ></p-select>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label>Status</label>
+                <div class="flex items-center gap-3">
+                    <p-toggleswitch formControlName="status"></p-toggleswitch>
+                    <span>{{ form.value.status ? 'Aktif' : 'Nonaktif' }}</span>
+                </div>
             </div>
 
             <div class="flex justify-end mt-3">

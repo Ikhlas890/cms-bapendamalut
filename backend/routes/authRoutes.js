@@ -144,6 +144,11 @@ router.post('/logout', authController.logout);
  *               client_id:
  *                 type: integer
  *                 example: 2
+ *               status:
+ *                 type: integer
+ *                 enum: [0, 1]
+ *                 description: Status user/admin. 1 aktif, 0 tidak aktif. Default 1.
+ *                 example: 1
  *     responses:
  *       201:
  *         description: User berhasil ditambahkan
@@ -229,6 +234,11 @@ router.post('/logout', authController.logout);
  *               client_id:
  *                 type: integer
  *                 example: 2
+ *               status:
+ *                 type: integer
+ *                 enum: [0, 1]
+ *                 description: Status user/admin. 1 aktif, 0 tidak aktif.
+ *                 example: 1
  *     responses:
  *       200:
  *         description: User berhasil diperbarui
