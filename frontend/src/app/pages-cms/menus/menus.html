@@ -1,0 +1,133 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="card">
+    <div class="flex justify-between mb-3">
+        <p-button *ngIf="permission.can_create" label="Tambah" icon="pi pi-plus" (click)="openAdd()"></p-button>
+    </div>
+
+    <p-table
+        #dt
+        [value]="menus"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5,10,20]"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        [globalFilterFields]="['nama_menu','slug','url']"
+        [sortField]="'urutan'"
+        [sortOrder]="1"
+        class="p-datatable-gridlines p-datatable-sm"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Menu</h5>
+                <p-iconfield>
+                    <p-inputicon class="pi pi-search" />
+                    <input pInputText type="text" placeholder="Search" (input)="onGlobalFilter(dt, $event)" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="nama_menu">Nama Menu <p-sortIcon field="nama_menu"></p-sortIcon></th>
+                <th pSortableColumn="slug">Slug <p-sortIcon field="slug"></p-sortIcon></th>
+                <th pSortableColumn="url">URL <p-sortIcon field="url"></p-sortIcon></th>
+                <th>Icon</th>
+                <th>Parent Menu</th>
+                <th pSortableColumn="urutan">Urutan <p-sortIcon field="urutan"></p-sortIcon></th>
+                <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                <th *ngIf="permission.can_update || permission.can_delete">Aksi</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-menu>
+            <tr>
+                <td>{{ menu.nama_menu }}</td>
+                <td>{{ menu.slug }}</td>
+                <td>{{ menu.url }}</td>
+                <td>
+                    <span *ngIf="menu.icon; else emptyIcon" class="inline-flex items-center gap-2">
+                        <i [class]="menu.icon"></i>
+                        <span>{{ menu.icon }}</span>
+                    </span>
+                    <ng-template #emptyIcon>-</ng-template>
+                </td>
+                <td>{{ getParentName(menu.parent_id) }}</td>
+                <td>{{ menu.urutan }}</td>
+                <td>
+                    <p-tag [value]="getStatusLabel(menu.status)" [severity]="getStatusSeverity(menu.status)"></p-tag>
+                </td>
+                <td *ngIf="permission.can_update || permission.can_delete">
+                    <button *ngIf="permission.can_update" pButton icon="pi pi-pencil" class="p-button-text p-button-sm mr-2" (click)="openEdit(menu)"></button>
+                    <button *ngIf="permission.can_delete" pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="delete(menu)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog header="{{ dialogTitle }}" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '620px' }" [contentStyle]="{ overflow: 'visible' }">
+    <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+                <label>Nama Menu</label>
+                <input pInputText formControlName="nama_menu" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>URL</label>
+                <input pInputText formControlName="url" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>Icon</label>
+                <p-select
+                    [options]="iconOptions"
+                    formControlName="icon"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Pilih icon"
+                    appendTo="body"
+                    [style]="{ width: '100%' }"
+                    [panelStyle]="{ 'min-width': '100%', 'max-height': '280px' }"
+                ></p-select>
+                <div *ngIf="form.value.icon" class="flex items-center gap-2 text-sm text-color-secondary">
+                    <i [class]="form.value.icon"></i>
+                    <span>{{ form.value.icon }}</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>Parent Menu</label>
+                <p-select
+                    [options]="parentOptions"
+                    formControlName="parent_id"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Pilih parent menu"
+                    appendTo="body"
+                    [style]="{ width: '100%' }"
+                    [panelStyle]="{ 'min-width': '100%', 'max-height': '280px' }"
+                ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>Urutan</label>
+                <p-inputnumber formControlName="urutan" [min]="0" [showButtons]="true" [style]="{ width: '100%' }"></p-inputnumber>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>Status</label>
+                <div class="flex items-center gap-3">
+                    <p-toggleswitch formControlName="status"></p-toggleswitch>
+                    <span>{{ form.value.status ? 'Aktif' : 'Nonaktif' }}</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-3">
+                <button pButton type="button" label="Batal" class="p-button-text mr-2" (click)="dialogVisible=false"></button>
+                <button pButton type="submit" label="Simpan" [disabled]="form.invalid || (selectedId ? !permission.can_update : !permission.can_create)"></button>
+            </div>
+        </div>
+    </form>
+</p-dialog>

@@ -1,0 +1,105 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="card">
+    <div class="flex justify-between mb-3">
+        <p-button *ngIf="permission.can_create" label="Tambah" icon="pi pi-plus" (click)="openAdd()"></p-button>
+    </div>
+
+    <p-table
+        #dt
+        [value]="panduan"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5,10,20]"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        [globalFilterFields]="['judul','tipe','konten']"
+        [sortField]="'created_at'"
+        [sortOrder]="-1"
+        class="p-datatable-gridlines p-datatable-sm"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Panduan Layanan</h5>
+                <p-iconfield>
+                    <p-inputicon class="pi pi-search" />
+                    <input pInputText type="text" placeholder="Search" (input)="onGlobalFilter(dt, $event)" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="judul">Judul Panduan <p-sortIcon field="judul"></p-sortIcon></th>
+                <th pSortableColumn="tipe">Tipe Konten <p-sortIcon field="tipe"></p-sortIcon></th>
+                <th>Konten</th>
+                <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                <th *ngIf="permission.can_update || permission.can_delete">Aksi</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td>{{ item.judul }}</td>
+                <td>
+                    <p-tag [value]="getTipeLabel(item.tipe)" [severity]="getTipeSeverity(item.tipe)"></p-tag>
+                </td>
+                <td>
+                    <span [innerHTML]="item.konten || '-'"></span>
+                </td>
+                <td>
+                    <p-tag [value]="getStatusLabel(item.status)" [severity]="getStatusSeverity(item.status)"></p-tag>
+                </td>
+                <td *ngIf="permission.can_update || permission.can_delete">
+                    <button *ngIf="permission.can_update" pButton icon="pi pi-pencil" class="p-button-text p-button-sm mr-2" (click)="openEdit(item)"></button>
+                    <button *ngIf="permission.can_delete" pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="delete(item)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog header="{{ dialogTitle }}" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '900px' }" [contentStyle]="{ overflow: 'visible' }">
+    <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+                <label>Judul Panduan</label>
+                <input pInputText formControlName="judul" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>Tipe Konten</label>
+                <p-select
+                    [options]="tipeOptions"
+                    formControlName="tipe"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Pilih tipe konten"
+                    appendTo="body"
+                    [style]="{ width: '100%' }"
+                    [panelStyle]="{ 'min-width': '100%' }"
+                ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>Konten</label>
+                <div class="NgxEditor__Wrapper">
+                    <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+                    <ngx-editor class="custom-editor" [editor]="editor" formControlName="konten" placeholder="Tulis konten panduan di sini..."></ngx-editor>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>Status</label>
+                <div class="flex items-center gap-3">
+                    <p-toggleswitch formControlName="status"></p-toggleswitch>
+                    <span>{{ form.value.status ? 'Aktif' : 'Nonaktif' }}</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-3">
+                <button pButton type="button" label="Batal" class="p-button-text mr-2" (click)="dialogVisible=false"></button>
+                <button pButton type="submit" label="Simpan" [disabled]="form.invalid || (selectedId ? !permission.can_update : !permission.can_create)"></button>
+            </div>
+        </div>
+    </form>
+</p-dialog>

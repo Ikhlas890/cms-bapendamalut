@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
+import { AccessControlService, CrudPermission } from 'src/services/access-control.service';
 import { Client, ClientService } from 'src/services/client.service';
 import { UserCms, UserService } from 'src/services/user.service';
 
@@ -45,10 +46,17 @@ export class Users {
   dialogTitle = 'Tambah User';
   selectedId?: number;
   loading = false;
+  permission: CrudPermission = {
+    can_view: false,
+    can_create: false,
+    can_update: false,
+    can_delete: false
+  };
 
   constructor(
     private userService: UserService,
     private clientService: ClientService,
+    private accessControl: AccessControlService,
     private fb: FormBuilder,
     private msg: MessageService,
     private confirm: ConfirmationService
@@ -56,8 +64,7 @@ export class Users {
 
   ngOnInit(): void {
     this.initForm();
-    this.loadUsers();
-    this.loadClients();
+    this.loadPermission();
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -86,6 +93,29 @@ export class Users {
     });
   }
 
+  loadPermission() {
+    this.loading = true;
+    this.accessControl.getPermission('users').subscribe({
+      next: (permission) => {
+        this.permission = permission;
+
+        if (!permission.can_view) {
+          this.users = [];
+          this.loading = false;
+          this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses melihat users' });
+          return;
+        }
+
+        this.loadUsers();
+        this.loadClients();
+      },
+      error: () => {
+        this.loading = false;
+        this.msg.add({ severity: 'error', summary: 'Error', detail: 'Gagal memuat hak akses' });
+      }
+    });
+  }
+
   loadClients() {
     this.clientService.getClients().subscribe({
       next: (res) => {
@@ -104,6 +134,11 @@ export class Users {
   }
 
   openAdd() {
+    if (!this.permission.can_create) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses tambah user' });
+      return;
+    }
+
     this.dialogTitle = 'Tambah User';
     this.selectedId = undefined;
     this.form.reset();
@@ -113,6 +148,11 @@ export class Users {
   }
 
   openEdit(user: UserCms) {
+    if (!this.permission.can_update) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses edit user' });
+      return;
+    }
+
     this.dialogTitle = 'Edit User';
     this.selectedId = user.id;
     this.form.get('password')?.clearValidators();
@@ -127,6 +167,9 @@ export class Users {
 
   save() {
     if (this.form.invalid) return;
+
+    if (this.selectedId && !this.permission.can_update) return;
+    if (!this.selectedId && !this.permission.can_create) return;
 
     const payload = {
       username: this.form.value.username,
@@ -155,6 +198,11 @@ export class Users {
   }
 
   delete(user: UserCms) {
+    if (!this.permission.can_delete) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses hapus user' });
+      return;
+    }
+
     this.confirm.confirm({
       message: `Hapus user "${user.username}"?`,
       accept: () => {

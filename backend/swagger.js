@@ -98,15 +98,16 @@ const options = {
         },
         MenuInput: {
           type: 'object',
-          required: ['nama_menu', 'slug', 'url'],
+          required: ['nama_menu', 'url'],
           properties: {
             nama_menu: {
               type: 'string',
-              example: 'Dashboard',
+              example: 'Hak Akses',
             },
             slug: {
               type: 'string',
-              example: 'dashboard',
+              readOnly: true,
+              example: 'hak-akses',
             },
             url: {
               type: 'string',
@@ -125,6 +126,77 @@ const options = {
             urutan: {
               type: 'integer',
               example: 1,
+            },
+            status: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+          },
+        },
+        Panduan: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              example: 1,
+            },
+            judul: {
+              type: 'string',
+              example: 'Cara Membayar Pajak Daerah',
+            },
+            tipe: {
+              type: 'string',
+              enum: ['video', 'teks', 'link', 'file'],
+              example: 'teks',
+            },
+            konten: {
+              type: 'string',
+              nullable: true,
+              example: 'Isi panduan pembayaran pajak daerah.',
+            },
+            status: {
+              type: 'integer',
+              enum: [0, 1],
+              example: 1,
+            },
+            created_by: {
+              type: 'integer',
+              nullable: true,
+              example: 1,
+            },
+            updated_by: {
+              type: 'integer',
+              nullable: true,
+              example: 1,
+            },
+            created_at: {
+              type: 'string',
+              example: '2026-07-23 10:30:00',
+            },
+            updated_at: {
+              type: 'string',
+              example: '2026-07-23 10:30:00',
+            },
+          },
+        },
+        PanduanInput: {
+          type: 'object',
+          required: ['judul', 'tipe'],
+          properties: {
+            judul: {
+              type: 'string',
+              example: 'Cara Membayar Pajak Daerah',
+            },
+            tipe: {
+              type: 'string',
+              enum: ['video', 'teks', 'link', 'file'],
+              example: 'teks',
+            },
+            konten: {
+              type: 'string',
+              nullable: true,
+              example: 'Isi panduan pembayaran pajak daerah.',
             },
             status: {
               type: 'integer',

@@ -10,8 +10,12 @@ const publicRoutes = require('./routes/publicRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const menuRoutes = require('./routes/menuRoutes');
 const rolePermissionRoutes = require('./routes/rolePermissionRoutes');
+const panduanRoutes = require('./routes/panduanRoutes');
 const { swaggerUi, specs } = require('./swagger');
 const app = express();
+
+const PORT = 3000;
+const HOST = "localhost";
 
 app.use(cors({
   origin: [
@@ -34,10 +38,11 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/menus', menuRoutes);
 app.use('/api/role-permissions', rolePermissionRoutes);
 app.use('/api/role_permissions', rolePermissionRoutes);
+app.use('/api/panduan', panduanRoutes);
 
 // app.use('/uploads', express.static('uploads'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.listen(3000, () => {
-  console.log('Server berjalan di http://localhost:3000');
+app.listen(PORT, HOST, () => {
+  console.log(`Server berjalan di http://${HOST}:${PORT}`);
 });

@@ -16,6 +16,7 @@ import { PostService, Post } from 'src/services/post-bapendamaluku.service';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
+import { AccessControlService, CrudPermission } from 'src/services/access-control.service';
 
 @Component({
   selector: 'app-berita',
@@ -59,6 +60,12 @@ export class Berita {
   dialogTitle = 'Tambah Berita';
   selectedId?: number;
   loading = false;
+  permission: CrudPermission = {
+    can_view: false,
+    can_create: false,
+    can_update: false,
+    can_delete: false
+  };
   currentImageUrl: string | null = null; // ✅ tambahkan ini
 
   editor!: Editor;
@@ -73,15 +80,16 @@ export class Berita {
 
   constructor(
     private postService: PostService,
+    private accessControl: AccessControlService,
     private fb: FormBuilder,
     private msg: MessageService,
     private confirm: ConfirmationService
   ) { }
 
   ngOnInit(): void {
-    this.loadPosts();
     this.initForm();
     this.editor = new Editor();
+    this.loadPermission();
   }
 
   /** Ambil semua berita */
@@ -99,6 +107,28 @@ export class Berita {
     });
   }
 
+  loadPermission() {
+    this.loading = true;
+    this.accessControl.getPermission('berita').subscribe({
+      next: (permission) => {
+        this.permission = permission;
+
+        if (!permission.can_view) {
+          this.posts = [];
+          this.loading = false;
+          this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses melihat berita' });
+          return;
+        }
+
+        this.loadPosts();
+      },
+      error: () => {
+        this.loading = false;
+        this.msg.add({ severity: 'error', summary: 'Error', detail: 'Gagal memuat hak akses' });
+      }
+    });
+  }
+
   initForm() {
     this.form = this.fb.group({
       judul_berita: ['', Validators.required],
@@ -110,6 +140,11 @@ export class Berita {
   }
 
   openAdd() {
+    if (!this.permission.can_create) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses tambah berita' });
+      return;
+    }
+
     this.dialogTitle = 'Tambah Data';
     this.selectedId = undefined;
     this.form.reset();
@@ -120,6 +155,11 @@ export class Berita {
   }
 
   openEdit(post: Post) {
+    if (!this.permission.can_update) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses edit berita' });
+      return;
+    }
+
     this.dialogTitle = 'Edit Data';
     this.selectedId = post.id;
 
@@ -148,6 +188,8 @@ export class Berita {
   /** Simpan (tambah/update) */
   save() {
     if (this.form.invalid) return;
+    if (this.selectedId && !this.permission.can_update) return;
+    if (!this.selectedId && !this.permission.can_create) return;
 
     const fd = new FormData();
 
@@ -185,6 +227,11 @@ export class Berita {
 
   /** Hapus berita */
   delete(post: Post) {
+    if (!this.permission.can_delete) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses hapus berita' });
+      return;
+    }
+
     this.confirm.confirm({
       message: `Hapus berita "${post.judul_berita}"?`,
       accept: () => {

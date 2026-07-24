@@ -10,6 +10,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
+import { AccessControlService, CrudPermission } from 'src/services/access-control.service';
 import { Client, ClientService } from 'src/services/client.service';
 
 @Component({
@@ -40,9 +41,16 @@ export class GroupUsers {
   dialogTitle = 'Tambah Group User';
   selectedId?: number;
   loading = false;
+  permission: CrudPermission = {
+    can_view: false,
+    can_create: false,
+    can_update: false,
+    can_delete: false
+  };
 
   constructor(
     private clientService: ClientService,
+    private accessControl: AccessControlService,
     private fb: FormBuilder,
     private msg: MessageService,
     private confirm: ConfirmationService
@@ -50,7 +58,7 @@ export class GroupUsers {
 
   ngOnInit(): void {
     this.initForm();
-    this.loadClients();
+    this.loadPermission();
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -77,7 +85,34 @@ export class GroupUsers {
     });
   }
 
+  loadPermission() {
+    this.loading = true;
+    this.accessControl.getPermission('group-users').subscribe({
+      next: (permission) => {
+        this.permission = permission;
+
+        if (!permission.can_view) {
+          this.clients = [];
+          this.loading = false;
+          this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses melihat group user' });
+          return;
+        }
+
+        this.loadClients();
+      },
+      error: () => {
+        this.loading = false;
+        this.msg.add({ severity: 'error', summary: 'Error', detail: 'Gagal memuat hak akses' });
+      }
+    });
+  }
+
   openAdd() {
+    if (!this.permission.can_create) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses tambah group user' });
+      return;
+    }
+
     this.dialogTitle = 'Tambah Group User';
     this.selectedId = undefined;
     this.form.reset();
@@ -85,6 +120,11 @@ export class GroupUsers {
   }
 
   openEdit(client: Client) {
+    if (!this.permission.can_update) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses edit group user' });
+      return;
+    }
+
     this.dialogTitle = 'Edit Group User';
     this.selectedId = client.id;
     this.form.patchValue({
@@ -95,6 +135,9 @@ export class GroupUsers {
 
   save() {
     if (this.form.invalid) return;
+
+    if (this.selectedId && !this.permission.can_update) return;
+    if (!this.selectedId && !this.permission.can_create) return;
 
     const payload = {
       nama_instansi: this.form.value.nama_instansi
@@ -121,6 +164,11 @@ export class GroupUsers {
   }
 
   delete(client: Client) {
+    if (!this.permission.can_delete) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses hapus group user' });
+      return;
+    }
+
     this.confirm.confirm({
       message: `Hapus group user "${client.nama_instansi}"?`,
       accept: () => {

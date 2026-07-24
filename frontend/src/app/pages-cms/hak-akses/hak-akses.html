@@ -1,0 +1,73 @@
+<p-toast></p-toast>
+
+<div class="card">
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div class="flex flex-col gap-2 w-full md:w-96">
+                <label>Group User</label>
+                <p-select
+                    [options]="clientOptions"
+                    [(ngModel)]="selectedClientId"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Pilih group user"
+                    appendTo="body"
+                    [style]="{ width: '100%' }"
+                    [panelStyle]="{ 'min-width': '100%', 'max-height': '280px' }"
+                    (onChange)="onClientChange()"
+                ></p-select>
+            </div>
+
+            <button pButton type="button" label="Simpan" icon="pi pi-save" [loading]="saving" [disabled]="!selectedClientId || loading || !canManagePermissions" (click)="savePermissions()"></button>
+        </div>
+
+        <p-table [value]="accessMenus" [loading]="loading" responsiveLayout="scroll" class="p-datatable-gridlines p-datatable-sm">
+            <ng-template pTemplate="caption">
+                <div class="flex items-center justify-between">
+                    <h5 class="m-0">Hak Akses</h5>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Menu</th>
+                    <th>URL</th>
+                    <th class="text-center">View</th>
+                    <th class="text-center">Create</th>
+                    <th class="text-center">Update</th>
+                    <th class="text-center">Delete</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-menu>
+                <tr>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <i *ngIf="menu.icon" [ngClass]="menu.icon"></i>
+                            <span>{{ menu.nama_menu }}</span>
+                        </div>
+                    </td>
+                    <td>{{ menu.url }}</td>
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="menu.can_view" [binary]="true" [disabled]="!selectedClientId || !canManagePermissions"></p-checkbox>
+                    </td>
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="menu.can_create" [binary]="true" [disabled]="!selectedClientId || !canManagePermissions"></p-checkbox>
+                    </td>
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="menu.can_update" [binary]="true" [disabled]="!selectedClientId || !canManagePermissions"></p-checkbox>
+                    </td>
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="menu.can_delete" [binary]="true" [disabled]="!selectedClientId || !canManagePermissions"></p-checkbox>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6">Data menu belum tersedia</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

@@ -3,7 +3,7 @@
 
 <div class="card">
     <div class="flex justify-between mb-3">
-        <p-button label="Tambah" icon="pi pi-plus" (click)="openAdd()"></p-button>
+        <p-button *ngIf="permission.can_create" label="Tambah" icon="pi pi-plus" (click)="openAdd()"></p-button>
     </div>
 
     <p-table
@@ -24,7 +24,7 @@
                 <th pSortableColumn="judul_berita">Judul <p-sortIcon field="judul_berita"></p-sortIcon></th>
                 <th>Tanggal</th>
                 <th>Sumber</th>
-                <th>Aksi</th>
+                <th *ngIf="permission.can_update || permission.can_delete">Aksi</th>
             </tr>
         </ng-template>
         <!-- Search -->
@@ -43,9 +43,9 @@
                 <td>{{ post.judul_berita }}</td>
                 <td>{{ post.tanggal_berita | date }}</td>
                 <td>{{ post.sumber_berita }}</td>
-                <td>
-                    <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm mr-2" (click)="openEdit(post)"></button>
-                    <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="delete(post)"></button>
+                <td *ngIf="permission.can_update || permission.can_delete">
+                    <button *ngIf="permission.can_update" pButton icon="pi pi-pencil" class="p-button-text p-button-sm mr-2" (click)="openEdit(post)"></button>
+                    <button *ngIf="permission.can_delete" pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="delete(post)"></button>
                 </td>
             </tr>
         </ng-template>
@@ -84,7 +84,7 @@
 
             <div class="flex justify-end mt-3">
                 <button pButton type="button" label="Batal" class="p-button-text mr-2" (click)="dialogVisible=false"></button>
-                <button pButton type="submit" label="Simpan" [disabled]="form.invalid"></button>
+                <button pButton type="submit" label="Simpan" [disabled]="form.invalid || (selectedId ? !permission.can_update : !permission.can_create)"></button>
             </div>
         </div>
     </form>

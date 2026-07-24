@@ -4,6 +4,17 @@ function normalizeString(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function generateSlug(value) {
+  return value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function normalizeNullableString(value) {
   if (value === undefined || value === null || value === '') return null;
   return String(value).trim() || null;
@@ -30,15 +41,19 @@ function normalizeBooleanNumber(value, defaultValue = 1) {
 
 async function validateMenuPayload(body, currentId = null) {
   const nama_menu = normalizeString(body.nama_menu);
-  const slug = normalizeString(body.slug);
+  const slug = generateSlug(nama_menu);
   const url = normalizeString(body.url);
   const icon = normalizeNullableString(body.icon);
   const parent_id = normalizeNullableInt(body.parent_id);
   const urutan = normalizeInt(body.urutan, 0);
   const status = normalizeBooleanNumber(body.status, 1);
 
-  if (!nama_menu || !slug || !url) {
-    return { error: { status: 400, message: 'nama_menu, slug, dan url wajib diisi' } };
+  if (!nama_menu || !url) {
+    return { error: { status: 400, message: 'nama_menu dan url wajib diisi' } };
+  }
+
+  if (!slug) {
+    return { error: { status: 400, message: 'nama_menu tidak valid untuk dibuat slug' } };
   }
 
   if (Number.isNaN(parent_id)) {

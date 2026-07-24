@@ -17,6 +17,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { SelectModule } from 'primeng/select';
+import { AccessControlService, CrudPermission } from 'src/services/access-control.service';
 
 @Component({
   selector: 'app-struktur-organisasi',
@@ -58,6 +59,12 @@ export class StrukturOrganisasi {
   dialogTitle = 'Tambah Berita';
   selectedId?: number;
   loading = false;
+  permission: CrudPermission = {
+    can_view: false,
+    can_create: false,
+    can_update: false,
+    can_delete: false
+  };
 
   editor!: Editor;
   toolbar: Toolbar = [
@@ -78,15 +85,16 @@ export class StrukturOrganisasi {
 
   constructor(
     private strukturService: StrukturOrganisasiService,
+    private accessControl: AccessControlService,
     private fb: FormBuilder,
     private msg: MessageService,
     private confirm: ConfirmationService
   ) { }
 
   ngOnInit(): void {
-    this.loadPosts();
     this.initForm();
     this.editor = new Editor();
+    this.loadPermission();
   }
 
   getStatusLabel(value: string): string {
@@ -116,6 +124,28 @@ export class StrukturOrganisasi {
     });
   }
 
+  loadPermission() {
+    this.loading = true;
+    this.accessControl.getPermission('struktur-organisasi').subscribe({
+      next: (permission) => {
+        this.permission = permission;
+
+        if (!permission.can_view) {
+          this.struktur = [];
+          this.loading = false;
+          this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses melihat struktur organisasi' });
+          return;
+        }
+
+        this.loadPosts();
+      },
+      error: () => {
+        this.loading = false;
+        this.msg.add({ severity: 'error', summary: 'Error', detail: 'Gagal memuat hak akses' });
+      }
+    });
+  }
+
   initForm() {
     this.form = this.fb.group({
       nama_jabatan: ['', Validators.required],
@@ -132,6 +162,11 @@ export class StrukturOrganisasi {
 
   /** Buka dialog tambah */
   openAdd() {
+    if (!this.permission.can_create) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses tambah struktur organisasi' });
+      return;
+    }
+
     this.dialogTitle = 'Tambah Data';
     this.selectedId = undefined;
     this.form.reset();
@@ -140,6 +175,11 @@ export class StrukturOrganisasi {
 
   /** Buka dialog edit */
   openEdit(struktur: Data) {
+    if (!this.permission.can_update) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses edit struktur organisasi' });
+      return;
+    }
+
     this.dialogTitle = 'Edit Data';
     this.selectedId = struktur.id;
 
@@ -167,6 +207,8 @@ export class StrukturOrganisasi {
   /** Simpan (tambah/update) */
   save() {
     if (this.form.invalid) return;
+    if (this.selectedId && !this.permission.can_update) return;
+    if (!this.selectedId && !this.permission.can_create) return;
 
     const fd = new FormData();
 
@@ -203,6 +245,11 @@ export class StrukturOrganisasi {
 
   /** Hapus data */
   delete(struktur: Data) {
+    if (!this.permission.can_delete) {
+      this.msg.add({ severity: 'warn', summary: 'Akses Ditolak', detail: 'Anda tidak memiliki akses hapus struktur organisasi' });
+      return;
+    }
+
     this.confirm.confirm({
       message: `Hapus jabaran "${struktur.nama_jabatan}"?`,
       accept: () => {

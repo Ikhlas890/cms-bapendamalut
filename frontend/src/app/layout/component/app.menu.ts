@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
+import { Subscription } from 'rxjs';
+import { AuthService } from 'src/services/auth.service';
+import { RolePermission, RolePermissionService } from 'src/services/role-permission.service';
 
 @Component({
     selector: 'app-menu',
@@ -15,11 +18,140 @@ import { AppMenuitem } from './app.menuitem';
         </ng-container>
     </ul> `
 })
-export class AppMenu {
+export class AppMenu implements OnInit, OnDestroy {
     model: MenuItem[] = [];
 
+    private menuSubscription?: Subscription;
+
+    constructor(
+        private authService: AuthService,
+        private rolePermissionService: RolePermissionService
+    ) {}
+
     ngOnInit() {
-        this.model = [
+        const admin = this.authService.admin$.value;
+
+        if (admin?.client_id) {
+            this.loadMenuByClient(admin.client_id);
+            return;
+        }
+
+        this.menuSubscription = this.authService.checkAuthFromServer().subscribe({
+            next: (response) => {
+                const clientId = response.admin?.client_id;
+                if (clientId) {
+                    this.loadMenuByClient(clientId);
+                } else {
+                    this.model = [];
+                }
+            },
+            error: () => {
+                this.model = this.getFallbackMenu();
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        this.menuSubscription?.unsubscribe();
+    }
+
+    private loadMenuByClient(clientId: number) {
+        this.menuSubscription?.unsubscribe();
+        this.menuSubscription = this.rolePermissionService.getRolePermissions(clientId).subscribe({
+            next: (permissions) => {
+                this.model = this.mapPermissionsToItems(permissions);
+            },
+            error: () => {
+                this.model = this.getFallbackMenu();
+            }
+        });
+    }
+
+    private mapPermissionsToItems(permissions: RolePermission[]): MenuItem[] {
+        const viewablePermissions = [...permissions]
+            .filter((permission) => permission.can_view === 1)
+            .sort((a, b) => {
+                const parentA = a.parent_id ?? a.menu_id;
+                const parentB = b.parent_id ?? b.menu_id;
+
+                if (parentA !== parentB) return parentA - parentB;
+                if ((a.urutan ?? 0) !== (b.urutan ?? 0)) return (a.urutan ?? 0) - (b.urutan ?? 0);
+                return a.menu_id - b.menu_id;
+            });
+
+        const itemById = new Map<number, MenuItem>();
+        const rootItems: Array<{ permission: RolePermission; item: MenuItem }> = [];
+
+        for (const permission of viewablePermissions) {
+            itemById.set(permission.menu_id, this.createMenuItem(permission));
+        }
+
+        for (const permission of viewablePermissions) {
+            const item = itemById.get(permission.menu_id);
+            if (!item) continue;
+
+            if (permission.parent_id && itemById.has(permission.parent_id)) {
+                const parent = itemById.get(permission.parent_id);
+                parent!.items = [...(parent!.items ?? []), item];
+            } else {
+                rootItems.push({ permission, item });
+            }
+        }
+
+        const homeItems = rootItems.filter(({ permission }) => permission.menu_slug === 'dashboard').map(({ item }) => item);
+        const pageItems = rootItems.filter(({ permission }) => permission.menu_slug !== 'dashboard').map(({ item }) => item);
+        const model: MenuItem[] = [];
+
+        if (homeItems.length) {
+            model.push({
+                label: 'Home',
+                items: homeItems
+            });
+        }
+
+        if (pageItems.length) {
+            model.push({
+                label: 'Pages',
+                items: pageItems
+            });
+        }
+
+        return model;
+    }
+
+    private createMenuItem(permission: RolePermission): MenuItem {
+        const normalizedUrl = this.normalizeUrl(permission.url || '');
+        const item: MenuItem = {
+            label: permission.nama_menu,
+            icon: permission.icon || undefined
+        };
+
+        if (normalizedUrl.startsWith('http://') || normalizedUrl.startsWith('https://')) {
+            item.url = normalizedUrl;
+            item.target = '_blank';
+        } else if (normalizedUrl) {
+            item.routerLink = [normalizedUrl];
+        }
+
+        return item;
+    }
+
+    private normalizeUrl(url: string): string {
+        const normalizedUrl = (url || '').trim();
+        if (!normalizedUrl || normalizedUrl.startsWith('http://') || normalizedUrl.startsWith('https://')) {
+            return normalizedUrl;
+        }
+
+        const route = normalizedUrl.startsWith('/') ? normalizedUrl : `/${normalizedUrl}`;
+        if (route === '/dashboard' || route.startsWith('/pages/')) {
+            return route;
+        }
+
+        return `/pages${route}`;
+    }
+
+    private getFallbackMenu(): MenuItem[] {
+        return [
             {
                 label: 'Home',
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
@@ -30,6 +162,7 @@ export class AppMenu {
                     { label: 'Berita', icon: 'pi pi-fw pi-book', routerLink: ['/pages/berita'] },
                     { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/pages/users'] },
                     { label: 'Group Users', icon: 'pi pi-fw pi-users', routerLink: ['/pages/group-users'] },
+                    { label: 'Menu', icon: 'pi pi-fw pi-bars', routerLink: ['/pages/menus'] },
                     // { label: 'Daftar Pengaduan', icon: 'pi pi-fw pi-envelope', routerLink: ['/pages/daftar-pengaduan'] },
                     // {
                     //     label: 'Struktur Organisasi',
