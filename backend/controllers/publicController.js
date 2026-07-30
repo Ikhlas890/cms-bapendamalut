@@ -1,5 +1,6 @@
 // controllers/publicController.js
 const db = require('../config/db');
+const { buildUploadUrl } = require('../utils/uploadUrl');
 
 // -- BERITA -- //
 // GET SEMUA POST BERITA BERDASARKAN CLIENT SLUG
@@ -21,12 +22,9 @@ exports.getPostsByClient = async (req, res) => {
       return res.status(404).json({ message: 'Post tidak ditemukan untuk client ini' });
     }
 
-    // Tambahkan base URL untuk gambar_berita
-    // const baseUrl = `https://${req.get('host')}/uploads/berita/`;
-    const baseUrl = `${req.protocol}://${req.get('host')}/uploads/berita/`;
     const result = posts.map(p => ({
       ...p,
-      gambar_berita: p.gambar_berita ? baseUrl + p.gambar_berita : null
+      gambar_berita: buildUploadUrl(req, p.gambar_berita, 'berita')
     }));
 
     res.json(result);
@@ -57,10 +55,8 @@ exports.getPostByClientAndId = async (req, res) => {
       return res.status(404).json({ message: 'Post tidak ditemukan untuk client ini' });
     }
 
-    const baseUrl = `${req.protocol}://${req.get('host')}/uploads/berita/`;
-    // const baseUrl = `https://${req.get('host')}/uploads/berita/`;
     const post = posts[0];
-    post.gambar_berita = post.gambar_berita ? baseUrl + post.gambar_berita : null;
+    post.gambar_berita = buildUploadUrl(req, post.gambar_berita, 'berita');
 
     res.json(post);
   } catch (err) {

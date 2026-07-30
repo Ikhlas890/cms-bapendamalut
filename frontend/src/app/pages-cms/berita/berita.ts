@@ -17,7 +17,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { AccessControlService, CrudPermission } from 'src/services/access-control.service';
-import { buildApiUrl } from 'src/services/api.config';
+import { buildUploadUrl } from 'src/services/api.config';
 
 @Component({
   selector: 'app-berita',
@@ -98,7 +98,10 @@ export class Berita {
     this.loading = true;
     this.postService.getPosts().subscribe({
       next: (res) => {
-        this.posts = res;
+        this.posts = res.map((post) => ({
+          ...post,
+          gambar_berita: buildUploadUrl(post.gambar_berita, 'berita') || undefined
+        }));
         this.loading = false;
       },
       error: () => {
@@ -176,9 +179,7 @@ export class Berita {
       gambar_berita: null,
     });
 
-    this.currentImageUrl = post.gambar_berita
-      ? buildApiUrl(`/uploads/berita/${post.gambar_berita}`)
-      : null;
+    this.currentImageUrl = buildUploadUrl(post.gambar_berita, 'berita');
 
     this.dialogVisible = true;
 

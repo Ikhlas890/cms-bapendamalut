@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+require('dotenv').config();
 const postRoutes = require('./routes/postRoutes');
 const strukturRoutes = require('./routes/struktur-organisasi');
 const pengaduanRoutes = require('./routes/pengaduanRoutes');
@@ -11,6 +12,7 @@ const clientRoutes = require('./routes/clientRoutes');
 const menuRoutes = require('./routes/menuRoutes');
 const rolePermissionRoutes = require('./routes/rolePermissionRoutes');
 const panduanRoutes = require('./routes/panduanRoutes');
+const { getUploadFallbackUrl } = require('./utils/uploadUrl');
 const { swaggerUi, specs } = require('./swagger');
 const app = express();
 
@@ -23,6 +25,8 @@ const allowedOrigins = [
   'https://cms.intermatika.id',
   'https://bapendamaluku.id'
 ];
+
+app.set('trust proxy', true);
 
 app.use(cors({
   origin(origin, callback) {
@@ -52,6 +56,12 @@ app.use('/api/panduan', panduanRoutes);
 
 // app.use('/uploads', express.static('uploads'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', (req, res, next) => {
+  const fallbackUrl = getUploadFallbackUrl(req, `/uploads${req.path}`);
+  if (!fallbackUrl) return next();
+
+  return res.redirect(302, fallbackUrl);
+});
 
 app.listen(PORT, HOST, () => {
   console.log(`Server berjalan di http://192.168.100.6:${PORT}`);
