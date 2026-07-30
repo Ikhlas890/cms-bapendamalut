@@ -5,9 +5,14 @@ require('dotenv').config();
 
 const secret = process.env.JWT_SECRET;
 
-// Helper untuk ambil client_id dari token
 function getClientIdFromToken(req) {
-  const token = req.cookies.token;
+  if (req.user?.client_id) return req.user.client_id;
+
+  const authHeader = req.headers.authorization || '';
+  const bearerToken = authHeader.startsWith('Bearer ')
+    ? authHeader.slice('Bearer '.length)
+    : null;
+  const token = bearerToken || req.cookies?.token;
   if (!token) return null;
 
   try {

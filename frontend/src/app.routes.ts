@@ -19,6 +19,7 @@ export const appRoutes: Routes = [
         canActivate: [AuthGuard],
         children: [
             { path: 'dashboard', component: Dashboard },
+            { path: 'feedback', loadComponent: () => import('./app/pages-cms/feedback/feedback').then((m) => m.Feedback) },
             { path: 'pages', loadChildren: () => import('./app/pages-cms/pages-cms.routes') },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { buildApiUrl } from './api.config';
 
 export interface Pengaduan {
   id: number;
@@ -15,7 +16,7 @@ export interface Pengaduan {
 
 @Injectable({ providedIn: 'root' })
 export class PengaduanService {
-  private apiUrl = 'http://localhost:3000/api/pengaduan'; 
+  private apiUrl = buildApiUrl('/api/pengaduan');
 
   constructor(private http: HttpClient) {}
 

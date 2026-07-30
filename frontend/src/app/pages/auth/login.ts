@@ -8,6 +8,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import { MpadService } from 'src/services/mpad.service';
+import { switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-login',
@@ -47,7 +49,7 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
                                 </div>
                                 <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                             </div>
-                            <p-button label="Sign In" styleClass="w-full" (onClick)="onSubmit()"></p-button>
+                            <p-button label="Sign In" styleClass="w-full" [loading]="loading" [disabled]="loading" (onClick)="onSubmit()"></p-button>
                         </div>
                     </div>
                 </div>
@@ -60,12 +62,13 @@ export class Login {
     password: string = '';
     checked: boolean = false;
     error: string | null = null;
+    loading: boolean = false;
 
     listImage = [
         'assets/img/malut-logo.png'
     ]
 
-    constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+    constructor(private fb: FormBuilder, private auth: AuthService, private mpadService: MpadService, private router: Router) {
     }
 
     onSubmit() {
@@ -76,10 +79,15 @@ export class Login {
             return;
         }
 
-        this.auth.login({ username: this.username, password: this.password }).subscribe({
+        this.loading = true;
+
+        this.auth.login({ username: this.username, password: this.password }).pipe(
+            switchMap(() => this.mpadService.loginAdmin())
+        ).subscribe({
             next: () => this.router.navigate(['/dashboard']),
             error: err => {
-                this.error = err.error?.message || 'Login gagal! Username atau password salah. Silakan coba lagi.';
+                this.loading = false;
+                this.error = err.error?.message || 'Login gagal! Username/password salah atau login MPAD tidak dapat diproses.';
                 console.error('Login error:', err);
             }
         });

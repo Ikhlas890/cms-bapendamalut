@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { buildApiUrl } from './api.config';
 
 export interface Data {
   id: number;
@@ -17,29 +18,27 @@ export interface Data {
 
 @Injectable({ providedIn: 'root' })
 export class StrukturOrganisasiService {
-  private apiUrl = 'http://localhost:3000/api/struktur-organisasi';
+  private apiUrl = buildApiUrl('/api/struktur-organisasi');
 
   constructor(private http: HttpClient) { }
 
   getData(): Observable<Data[]> {
-    return this.http.get<Data[]>(this.apiUrl, { withCredentials: true });
+    return this.http.get<Data[]>(this.apiUrl);
   }
 
   getDataById(id: number): Observable<Data> {
-    return this.http.get<Data>(`${this.apiUrl}/${id}`, {
-      withCredentials: true,
-    });
+    return this.http.get<Data>(`${this.apiUrl}/${id}`);
   }
 
   createData(postData: FormData) {
-    return this.http.post(`${this.apiUrl}`, postData, { withCredentials: true });
+    return this.http.post(`${this.apiUrl}`, postData);
   }
 
   updateData(id: number, postData: FormData) {
-    return this.http.put(`${this.apiUrl}/${id}`, postData, { withCredentials: true });
+    return this.http.put(`${this.apiUrl}/${id}`, postData);
   }
 
   deleteData(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true });
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

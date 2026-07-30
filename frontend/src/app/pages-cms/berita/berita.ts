@@ -17,6 +17,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { AccessControlService, CrudPermission } from 'src/services/access-control.service';
+import { buildApiUrl } from 'src/services/api.config';
 
 @Component({
   selector: 'app-berita',
@@ -176,7 +177,7 @@ export class Berita {
     });
 
     this.currentImageUrl = post.gambar_berita
-      ? `http://localhost:3000/uploads/berita/${post.gambar_berita}`
+      ? buildApiUrl(`/uploads/berita/${post.gambar_berita}`)
       : null;
 
     this.dialogVisible = true;

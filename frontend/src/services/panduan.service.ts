@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { buildApiUrl } from './api.config';
 
 export type PanduanTipe = 'video' | 'teks' | 'link' | 'file';
 
@@ -23,9 +24,11 @@ export interface PanduanPayload {
     status: number;
 }
 
+export type PanduanRequestPayload = PanduanPayload | FormData;
+
 @Injectable({ providedIn: 'root' })
 export class PanduanService {
-    private apiUrl = 'http://localhost:3000/api/panduan';
+    private apiUrl = buildApiUrl('/api/panduan');
 
     constructor(private http: HttpClient) {}
 
@@ -41,32 +44,23 @@ export class PanduanService {
         }
 
         return this.http.get<Panduan[]>(this.apiUrl, {
-            params,
-            withCredentials: true
+            params
         });
     }
 
     getPanduanById(id: number): Observable<Panduan> {
-        return this.http.get<Panduan>(`${this.apiUrl}/${id}`, {
-            withCredentials: true
-        });
+        return this.http.get<Panduan>(`${this.apiUrl}/${id}`);
     }
 
-    createPanduan(payload: PanduanPayload): Observable<{ message: string; panduan: Panduan }> {
-        return this.http.post<{ message: string; panduan: Panduan }>(this.apiUrl, payload, {
-            withCredentials: true
-        });
+    createPanduan(payload: PanduanRequestPayload): Observable<{ message: string; panduan: Panduan }> {
+        return this.http.post<{ message: string; panduan: Panduan }>(this.apiUrl, payload);
     }
 
-    updatePanduan(id: number, payload: PanduanPayload): Observable<{ message: string; panduan: Panduan }> {
-        return this.http.put<{ message: string; panduan: Panduan }>(`${this.apiUrl}/${id}`, payload, {
-            withCredentials: true
-        });
+    updatePanduan(id: number, payload: PanduanRequestPayload): Observable<{ message: string; panduan: Panduan }> {
+        return this.http.put<{ message: string; panduan: Panduan }>(`${this.apiUrl}/${id}`, payload);
     }
 
     deletePanduan(id: number): Observable<{ message: string }> {
-        return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`, {
-            withCredentials: true
-        });
+        return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
     }
 }

@@ -44,7 +44,9 @@
                     <p-tag [value]="getTipeLabel(item.tipe)" [severity]="getTipeSeverity(item.tipe)"></p-tag>
                 </td>
                 <td>
-                    <span [innerHTML]="item.konten || '-'"></span>
+                    <a *ngIf="item.tipe === 'file' && getFileUrl(item.konten)" [href]="getFileUrl(item.konten)" target="_blank" rel="noopener">{{ item.konten }}</a>
+                    <span *ngIf="item.tipe !== 'file'" [innerHTML]="item.konten || '-'"></span>
+                    <span *ngIf="item.tipe === 'file' && !item.konten">-</span>
                 </td>
                 <td>
                     <p-tag [value]="getStatusLabel(item.status)" [severity]="getStatusSeverity(item.status)"></p-tag>
@@ -77,15 +79,31 @@
                     appendTo="body"
                     [style]="{ width: '100%' }"
                     [panelStyle]="{ 'min-width': '100%' }"
+                    (onChange)="onTipeChange()"
                 ></p-select>
             </div>
 
-            <div class="flex flex-col gap-2">
+            <div *ngIf="!isFileType()" class="flex flex-col gap-2">
                 <label>Konten</label>
                 <div class="NgxEditor__Wrapper">
                     <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
                     <ngx-editor class="custom-editor" [editor]="editor" formControlName="konten" placeholder="Tulis konten panduan di sini..."></ngx-editor>
                 </div>
+            </div>
+
+            <div *ngIf="isFileType()" class="flex flex-col gap-2">
+                <label>Lampiran</label>
+                <p-fileUpload
+                    #uploader
+                    name="lampiran"
+                    mode="basic"
+                    chooseLabel="Pilih Lampiran"
+                    chooseIcon="pi pi-upload"
+                    (onSelect)="onFileSelect($event)"
+                    [maxFileSize]="10000000"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/*"
+                ></p-fileUpload>
+                <a *ngIf="currentFileUrl" [href]="currentFileUrl" target="_blank" rel="noopener">{{ currentFileName }}</a>
             </div>
 
             <div class="flex flex-col gap-2">

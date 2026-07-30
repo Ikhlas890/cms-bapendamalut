@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { buildApiUrl } from './api.config';
 
 export interface Post {
   id?: number;
@@ -13,29 +14,27 @@ export interface Post {
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
-  private apiUrl = 'http://localhost:3000/api/posts';
+  private apiUrl = buildApiUrl('/api/posts');
 
   constructor(private http: HttpClient) { }
 
   getPosts(): Observable<Post[]> {
-    return this.http.get<Post[]>(this.apiUrl, { withCredentials: true });
+    return this.http.get<Post[]>(this.apiUrl);
   }
 
   getPostById(id: number): Observable<Post> {
-    return this.http.get<Post>(`${this.apiUrl}/${id}`, {
-      withCredentials: true,
-    });
+    return this.http.get<Post>(`${this.apiUrl}/${id}`);
   }
 
   createPost(postData: FormData) {
-    return this.http.post(`${this.apiUrl}`, postData, { withCredentials: true });
+    return this.http.post(`${this.apiUrl}`, postData);
   }
 
   updatePost(id: number, postData: FormData) {
-    return this.http.put(`${this.apiUrl}/${id}`, postData, { withCredentials: true });
+    return this.http.put(`${this.apiUrl}/${id}`, postData);
   }
 
   deletePost(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true });
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

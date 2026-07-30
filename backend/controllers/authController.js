@@ -12,7 +12,7 @@ function getTokenFromRequest(req) {
     ? authHeader.slice('Bearer '.length)
     : null;
 
-  return req.cookies?.token || bearerToken;
+  return bearerToken || req.cookies?.token;
 }
 
 function normalizeStatus(status, defaultValue) {
@@ -61,13 +61,6 @@ exports.login = async (req, res) => {
       secret,
       { expiresIn: '1d' }
     );
-
-    res.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 86400000,
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      secure: process.env.NODE_ENV === 'production'
-    });
 
     res.status(200).json({
       username: admin.username,
@@ -217,10 +210,5 @@ exports.getUsers = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    secure: process.env.NODE_ENV === 'production'
-  });
   res.json({ message: 'Logout berhasil' });
 };

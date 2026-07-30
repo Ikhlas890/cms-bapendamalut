@@ -163,6 +163,7 @@ export class AppMenu implements OnInit, OnDestroy {
                     { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/pages/users'] },
                     { label: 'Group Users', icon: 'pi pi-fw pi-users', routerLink: ['/pages/group-users'] },
                     { label: 'Menu', icon: 'pi pi-fw pi-bars', routerLink: ['/pages/menus'] },
+                    { label: 'Feedback', icon: 'pi pi-fw pi-comments', routerLink: ['/feedback'] },
                     // { label: 'Daftar Pengaduan', icon: 'pi pi-fw pi-envelope', routerLink: ['/pages/daftar-pengaduan'] },
                     // {
                     //     label: 'Struktur Organisasi',

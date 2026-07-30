@@ -5,6 +5,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -15,7 +16,8 @@ import { ToastModule } from 'primeng/toast';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { Editor, NgxEditorModule, Toolbar } from 'ngx-editor';
 import { AccessControlService, CrudPermission } from 'src/services/access-control.service';
-import { Panduan, PanduanPayload, PanduanService, PanduanTipe } from 'src/services/panduan.service';
+import { Panduan, PanduanRequestPayload, PanduanService, PanduanTipe } from 'src/services/panduan.service';
+import { buildApiUrl } from 'src/services/api.config';
 
 interface SelectOption<T> {
     label: string;
@@ -32,6 +34,7 @@ interface SelectOption<T> {
         ConfirmDialogModule,
         TableModule,
         DialogModule,
+        FileUploadModule,
         ButtonModule,
         InputTextModule,
         SelectModule,
@@ -47,6 +50,7 @@ interface SelectOption<T> {
 })
 export class PanduanLayanan implements OnDestroy {
     @ViewChild('dt') dt!: Table;
+    @ViewChild('uploader') uploader: any;
 
     panduan: Panduan[] = [];
     tipeOptions: SelectOption<PanduanTipe>[] = [
@@ -59,6 +63,8 @@ export class PanduanLayanan implements OnDestroy {
     dialogVisible = false;
     dialogTitle = 'Tambah Panduan';
     selectedId?: number;
+    currentFileUrl: string | null = null;
+    currentFileName: string | null = null;
     loading = false;
     permission: CrudPermission = {
         can_view: false,
@@ -100,6 +106,7 @@ export class PanduanLayanan implements OnDestroy {
             judul: ['', Validators.required],
             tipe: [null, Validators.required],
             konten: ['', Validators.required],
+            lampiran: [null],
             status: [true, Validators.required]
         });
     }
@@ -152,8 +159,12 @@ export class PanduanLayanan implements OnDestroy {
             judul: '',
             tipe: null,
             konten: '',
+            lampiran: null,
             status: true
         });
+        this.currentFileUrl = null;
+        this.currentFileName = null;
+        if (this.uploader) this.uploader.clear();
         this.dialogVisible = true;
     }
 
@@ -169,8 +180,12 @@ export class PanduanLayanan implements OnDestroy {
             judul: item.judul,
             tipe: item.tipe,
             konten: item.konten || '',
+            lampiran: null,
             status: item.status === 1
         });
+        this.currentFileName = item.tipe === 'file' && item.konten ? item.konten : null;
+        this.currentFileUrl = this.currentFileName ? buildApiUrl(`/uploads/panduan/${this.currentFileName}`) : null;
+        if (this.uploader) this.uploader.clear();
         this.dialogVisible = true;
     }
 
@@ -249,13 +264,49 @@ export class PanduanLayanan implements OnDestroy {
         return status === 1 ? 'success' : 'secondary';
     }
 
-    private createPayload(): PanduanPayload {
-        return {
-            judul: this.form.value.judul,
-            tipe: this.form.value.tipe,
-            konten: this.form.value.konten,
-            status: this.form.value.status ? 1 : 0
-        };
+    isFileType(): boolean {
+        return this.form?.value.tipe === 'file';
+    }
+
+    getFileUrl(fileName: string | null): string | null {
+        return fileName ? buildApiUrl(`/uploads/panduan/${fileName}`) : null;
+    }
+
+    onTipeChange() {
+        if (this.isFileType()) {
+            this.form.patchValue({ konten: this.currentFileName || '' });
+            return;
+        }
+
+        this.form.patchValue({ lampiran: null });
+        this.currentFileUrl = null;
+        this.currentFileName = null;
+        if (this.uploader) this.uploader.clear();
+    }
+
+    onFileSelect(event: any) {
+        const file = event.files?.[0];
+        if (!file) return;
+
+        this.form.patchValue({
+            konten: file.name,
+            lampiran: file
+        });
+    }
+
+    private createPayload(): PanduanRequestPayload {
+        const fd = new FormData();
+        fd.append('judul', this.form.value.judul);
+        fd.append('tipe', this.form.value.tipe);
+        fd.append('konten', this.form.value.konten || '');
+        fd.append('status', this.form.value.status ? '1' : '0');
+
+        const lampiran = this.form.value.lampiran;
+        if (lampiran instanceof File) {
+            fd.append('lampiran', lampiran);
+        }
+
+        return fd;
     }
 
     ngOnDestroy() {

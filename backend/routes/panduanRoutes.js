@@ -13,8 +13,6 @@ const auth = require('../middleware/authMiddleware');
  *   get:
  *     tags: [Panduan]
  *     summary: Ambil daftar panduan
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: status
@@ -41,8 +39,6 @@ const auth = require('../middleware/authMiddleware');
  *                 $ref: '#/components/schemas/Panduan'
  *       400:
  *         description: Query filter tidak valid
- *       401:
- *         description: Token tidak ditemukan atau tidak valid
  *   post:
  *     tags: [Panduan]
  *     summary: Tambah panduan
@@ -76,8 +72,6 @@ const auth = require('../middleware/authMiddleware');
  *   get:
  *     tags: [Panduan]
  *     summary: Ambil detail panduan
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -94,8 +88,6 @@ const auth = require('../middleware/authMiddleware');
  *               $ref: '#/components/schemas/Panduan'
  *       400:
  *         description: ID tidak valid
- *       401:
- *         description: Token tidak ditemukan atau tidak valid
  *       404:
  *         description: Panduan tidak ditemukan
  *   put:
@@ -165,11 +157,10 @@ const auth = require('../middleware/authMiddleware');
  *       404:
  *         description: Panduan tidak ditemukan
  */
-router.use(auth);
 router.get('/', panduanController.getPanduan);
 router.get('/:id', panduanController.getPanduanById);
-router.post('/', panduanController.addPanduan);
-router.put('/:id', panduanController.editPanduan);
-router.delete('/:id', panduanController.deletePanduan);
+router.post('/', auth, panduanController.addPanduan);
+router.put('/:id', auth, panduanController.editPanduan);
+router.delete('/:id', auth, panduanController.deletePanduan);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { buildApiUrl } from './api.config';
 
 export interface RolePermission {
     id: number;
@@ -33,7 +34,7 @@ export interface RolePermissionPayload {
 
 @Injectable({ providedIn: 'root' })
 export class RolePermissionService {
-    private apiUrl = 'http://localhost:3000/api/role-permissions';
+    private apiUrl = buildApiUrl('/api/role-permissions');
 
     constructor(private http: HttpClient) {}
 
@@ -49,20 +50,15 @@ export class RolePermissionService {
         }
 
         return this.http.get<RolePermission[]>(this.apiUrl, {
-            params,
-            withCredentials: true
+            params
         });
     }
 
     createRolePermission(payload: RolePermissionPayload): Observable<{ message: string; permission: RolePermission }> {
-        return this.http.post<{ message: string; permission: RolePermission }>(this.apiUrl, payload, {
-            withCredentials: true
-        });
+        return this.http.post<{ message: string; permission: RolePermission }>(this.apiUrl, payload);
     }
 
     updateRolePermission(id: number, payload: RolePermissionPayload): Observable<{ message: string; permission: RolePermission }> {
-        return this.http.put<{ message: string; permission: RolePermission }>(`${this.apiUrl}/${id}`, payload, {
-            withCredentials: true
-        });
+        return this.http.put<{ message: string; permission: RolePermission }>(`${this.apiUrl}/${id}`, payload);
     }
 }

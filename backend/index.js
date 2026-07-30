@@ -15,15 +15,25 @@ const { swaggerUi, specs } = require('./swagger');
 const app = express();
 
 const PORT = 3000;
-const HOST = "localhost";
+const HOST = '0.0.0.0';
+const allowedOrigins = [
+  'http://localhost:4200',
+  'http://192.168.100.6:3000',
+  'https://cms-malut.intermatika.id',
+  'https://cms.intermatika.id',
+  'https://bapendamaluku.id'
+];
 
 app.use(cors({
-  origin: [
-    'http://localhost:4200',
-    'https://cms.intermatika.id',
-    'https://bapendamaluku.id'
-  ],
-  credentials: true
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`Origin ${origin} tidak diizinkan oleh CORS`));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(cookieParser());
@@ -44,5 +54,5 @@ app.use('/api/panduan', panduanRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, HOST, () => {
-  console.log(`Server berjalan di http://${HOST}:${PORT}`);
+  console.log(`Server berjalan di http://192.168.100.6:${PORT}`);
 });

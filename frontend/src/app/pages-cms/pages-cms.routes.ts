@@ -9,6 +9,7 @@ import { GroupUsers } from './group-users/group-users';
 import { HakAkses } from './hak-akses/hak-akses';
 import { Menus } from './menus/menus';
 import { PanduanLayanan } from './panduan-layanan/panduan-layanan';
+import { Feedback } from './feedback/feedback';
 
 export default [
     { path: 'berita', component: Berita },
@@ -16,6 +17,7 @@ export default [
     { path: 'group-users', component: GroupUsers },
     { path: 'menus', component: Menus },
     { path: 'panduan-layanan', component: PanduanLayanan },
+    { path: 'feedback', component: Feedback },
     { path: 'hak-akses', component: HakAkses },
     { path: 'daftar-pengaduan', component: DaftarPengaduan },
     { path: 'struktur-organisasi', component: StrukturOrganisasi },

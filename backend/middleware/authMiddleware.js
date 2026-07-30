@@ -8,7 +8,7 @@ function verifyToken(req, res, next) {
   const bearerToken = authHeader.startsWith('Bearer ')
     ? authHeader.slice('Bearer '.length)
     : null;
-  const token = req.cookies?.token || bearerToken;
+  const token = bearerToken || req.cookies?.token;
   if (!token) return res.status(401).json({ message: 'Token tidak ditemukan' });
 
   try {

@@ -1,4 +1,5 @@
 const PanduanModel = require('../models/panduanModel');
+const uploadPanduan = require('../middleware/uploadPanduan');
 
 const VALID_TYPES = ['video', 'teks', 'link', 'file'];
 
@@ -51,6 +52,15 @@ function validatePanduanPayload(body) {
   };
 }
 
+function applyUploadedFile(data, file, existingPanduan) {
+  if (data.tipe !== 'file') return data;
+
+  return {
+    ...data,
+    konten: file?.filename || data.konten || existingPanduan?.konten || null
+  };
+}
+
 exports.getPanduan = async (req, res) => {
   const { status, tipe } = req.query;
 
@@ -90,57 +100,65 @@ exports.getPanduanById = async (req, res) => {
   }
 };
 
-exports.addPanduan = async (req, res) => {
-  try {
-    const { data, error } = validatePanduanPayload(req.body);
-    if (error) return res.status(error.status).json({ message: error.message });
+exports.addPanduan = [
+  uploadPanduan.single('lampiran'),
+  async (req, res) => {
+    try {
+      const { data, error } = validatePanduanPayload(req.body);
+      if (error) return res.status(error.status).json({ message: error.message });
 
-    const userId = req.user?.id || null;
-    const result = await PanduanModel.create({
-      ...data,
-      created_by: userId,
-      updated_by: userId
-    });
-    const panduan = await PanduanModel.findById(result.insertId);
+      const payload = applyUploadedFile(data, req.file);
+      const userId = req.user?.id || null;
+      const result = await PanduanModel.create({
+        ...payload,
+        created_by: userId,
+        updated_by: userId
+      });
+      const panduan = await PanduanModel.findById(result.insertId);
 
-    res.status(201).json({
-      message: 'Panduan berhasil ditambahkan',
-      panduan
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+      res.status(201).json({
+        message: 'Panduan berhasil ditambahkan',
+        panduan
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   }
-};
+];
 
-exports.editPanduan = async (req, res) => {
-  const id = normalizeId(req.params.id);
-  if (Number.isNaN(id)) {
-    return res.status(400).json({ message: 'id harus berupa integer positif' });
-  }
-
-  try {
-    const existingPanduan = await PanduanModel.findById(id);
-    if (!existingPanduan) {
-      return res.status(404).json({ message: 'Panduan tidak ditemukan' });
+exports.editPanduan = [
+  uploadPanduan.single('lampiran'),
+  async (req, res) => {
+    const id = normalizeId(req.params.id);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ message: 'id harus berupa integer positif' });
     }
 
-    const { data, error } = validatePanduanPayload(req.body);
-    if (error) return res.status(error.status).json({ message: error.message });
+    try {
+      const existingPanduan = await PanduanModel.findById(id);
+      if (!existingPanduan) {
+        return res.status(404).json({ message: 'Panduan tidak ditemukan' });
+      }
 
-    await PanduanModel.update(id, {
-      ...data,
-      updated_by: req.user?.id || null
-    });
-    const panduan = await PanduanModel.findById(id);
+      const { data, error } = validatePanduanPayload(req.body);
+      if (error) return res.status(error.status).json({ message: error.message });
 
-    res.json({
-      message: 'Panduan berhasil diperbarui',
-      panduan
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+      const payload = applyUploadedFile(data, req.file, existingPanduan);
+      await PanduanModel.update(id, {
+        ...payload,
+        updated_by: req.user?.id || null
+      });
+      const panduan = await PanduanModel.findById(id);
+
+      res.json({
+        message: 'Panduan berhasil diperbarui',
+        panduan
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   }
-};
+];
 
 exports.deletePanduan = async (req, res) => {
   const id = normalizeId(req.params.id);
