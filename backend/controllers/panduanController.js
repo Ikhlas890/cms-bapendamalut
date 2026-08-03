@@ -26,6 +26,7 @@ function normalizeId(value) {
 
 function validatePanduanPayload(body) {
   const judul = normalizeString(body.judul);
+  const deskripsi = normalizeNullableText(body.deskripsi);
   const tipe = normalizeString(body.tipe).toLowerCase();
   const konten = normalizeNullableText(body.konten);
   const status = normalizeBooleanNumber(body.status, 1);
@@ -45,6 +46,7 @@ function validatePanduanPayload(body) {
   return {
     data: {
       judul,
+      deskripsi,
       tipe,
       konten,
       status

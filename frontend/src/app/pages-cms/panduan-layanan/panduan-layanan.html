@@ -14,7 +14,7 @@
         [rowsPerPageOptions]="[5,10,20]"
         [loading]="loading"
         responsiveLayout="scroll"
-        [globalFilterFields]="['judul','tipe','konten']"
+        [globalFilterFields]="['judul','deskripsi','tipe','konten']"
         [sortField]="'created_at'"
         [sortOrder]="-1"
         class="p-datatable-gridlines p-datatable-sm"
@@ -31,6 +31,7 @@
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="judul">Judul Panduan <p-sortIcon field="judul"></p-sortIcon></th>
+                <th pSortableColumn="deskripsi">Deskripsi <p-sortIcon field="deskripsi"></p-sortIcon></th>
                 <th pSortableColumn="tipe">Tipe Konten <p-sortIcon field="tipe"></p-sortIcon></th>
                 <th>Konten</th>
                 <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
@@ -40,6 +41,7 @@
         <ng-template pTemplate="body" let-item>
             <tr>
                 <td>{{ item.judul }}</td>
+                <td>{{ item.deskripsi || '-' }}</td>
                 <td>
                     <p-tag [value]="getTipeLabel(item.tipe)" [severity]="getTipeSeverity(item.tipe)"></p-tag>
                 </td>
@@ -66,6 +68,11 @@
             <div class="flex flex-col gap-2">
                 <label>Judul Panduan</label>
                 <input pInputText formControlName="judul" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label>Deskripsi</label>
+                <textarea pTextarea formControlName="deskripsi" rows="3" [autoResize]="true"></textarea>
             </div>
 
             <div class="flex flex-col gap-2">

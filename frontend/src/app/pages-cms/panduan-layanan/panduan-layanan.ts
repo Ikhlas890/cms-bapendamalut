@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { Editor, NgxEditorModule, Toolbar } from 'ngx-editor';
@@ -37,6 +38,7 @@ interface SelectOption<T> {
         FileUploadModule,
         ButtonModule,
         InputTextModule,
+        TextareaModule,
         SelectModule,
         ToggleSwitchModule,
         TagModule,
@@ -104,6 +106,7 @@ export class PanduanLayanan implements OnDestroy {
     initForm() {
         this.form = this.fb.group({
             judul: ['', Validators.required],
+            deskripsi: [''],
             tipe: [null, Validators.required],
             konten: ['', Validators.required],
             lampiran: [null],
@@ -157,6 +160,7 @@ export class PanduanLayanan implements OnDestroy {
         this.selectedId = undefined;
         this.form.reset({
             judul: '',
+            deskripsi: '',
             tipe: null,
             konten: '',
             lampiran: null,
@@ -178,6 +182,7 @@ export class PanduanLayanan implements OnDestroy {
         this.selectedId = item.id;
         this.form.patchValue({
             judul: item.judul,
+            deskripsi: item.deskripsi || '',
             tipe: item.tipe,
             konten: item.konten || '',
             lampiran: null,
@@ -297,6 +302,7 @@ export class PanduanLayanan implements OnDestroy {
     private createPayload(): PanduanRequestPayload {
         const fd = new FormData();
         fd.append('judul', this.form.value.judul);
+        fd.append('deskripsi', this.form.value.deskripsi || '');
         fd.append('tipe', this.form.value.tipe);
         fd.append('konten', this.form.value.konten || '');
         fd.append('status', this.form.value.status ? '1' : '0');

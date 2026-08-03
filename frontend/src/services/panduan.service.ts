@@ -8,6 +8,7 @@ export type PanduanTipe = 'video' | 'teks' | 'link' | 'file';
 export interface Panduan {
     id: number;
     judul: string;
+    deskripsi: string | null;
     tipe: PanduanTipe;
     konten: string | null;
     status: number;
@@ -19,6 +20,7 @@ export interface Panduan {
 
 export interface PanduanPayload {
     judul: string;
+    deskripsi: string;
     tipe: PanduanTipe;
     konten: string;
     status: number;

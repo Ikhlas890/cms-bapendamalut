@@ -3,7 +3,7 @@ const db = require('../config/db');
 const PanduanModel = {
   async getAll({ status, tipe } = {}) {
     let query = `
-      SELECT id, judul, tipe, konten, status, created_by, updated_by, created_at, updated_at
+      SELECT id, judul, deskripsi, tipe, konten, status, created_by, updated_by, created_at, updated_at
       FROM panduan
       WHERE 1=1
     `;
@@ -27,7 +27,7 @@ const PanduanModel = {
 
   async findById(id) {
     const [rows] = await db.query(
-      `SELECT id, judul, tipe, konten, status, created_by, updated_by, created_at, updated_at
+      `SELECT id, judul, deskripsi, tipe, konten, status, created_by, updated_by, created_at, updated_at
        FROM panduan
        WHERE id = ?`,
       [id]
@@ -35,21 +35,21 @@ const PanduanModel = {
     return rows[0];
   },
 
-  async create({ judul, tipe, konten, status, created_by, updated_by }) {
+  async create({ judul, deskripsi, tipe, konten, status, created_by, updated_by }) {
     const [result] = await db.query(
-      `INSERT INTO panduan (judul, tipe, konten, status, created_by, updated_by)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [judul, tipe, konten, status, created_by, updated_by]
+      `INSERT INTO panduan (judul, deskripsi, tipe, konten, status, created_by, updated_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [judul, deskripsi, tipe, konten, status, created_by, updated_by]
     );
     return result;
   },
 
-  async update(id, { judul, tipe, konten, status, updated_by }) {
+  async update(id, { judul, deskripsi, tipe, konten, status, updated_by }) {
     const [result] = await db.query(
       `UPDATE panduan
-       SET judul = ?, tipe = ?, konten = ?, status = ?, updated_by = ?
+       SET judul = ?, deskripsi = ?, tipe = ?, konten = ?, status = ?, updated_by = ?
        WHERE id = ?`,
-      [judul, tipe, konten, status, updated_by, id]
+      [judul, deskripsi, tipe, konten, status, updated_by, id]
     );
     return result;
   },

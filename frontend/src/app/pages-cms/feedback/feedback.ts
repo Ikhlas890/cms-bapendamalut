@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -27,6 +28,7 @@ interface SelectOption {
     CommonModule,
     FormsModule,
     ToastModule,
+    ConfirmDialogModule,
     TableModule,
     ButtonModule,
     InputTextModule,
@@ -38,7 +40,7 @@ interface SelectOption {
     RatingModule,
     DialogModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './feedback.html',
   styleUrl: './feedback.scss'
 })
@@ -59,6 +61,7 @@ export class Feedback implements OnInit {
   public replyLoading = false;
   public replyStatus = 'SELESAI';
   public replyText = '';
+  private filterTimer?: ReturnType<typeof setTimeout>;
 
   public readonly statusOptions: SelectOption[] = [
     { label: 'Semua Status', value: '' },
@@ -86,7 +89,8 @@ export class Feedback implements OnInit {
 
   constructor(
     private mpadService: MpadService,
-    private msg: MessageService
+    private msg: MessageService,
+    private confirm: ConfirmationService
   ) {}
 
   ngOnInit(): void {
@@ -135,7 +139,16 @@ export class Feedback implements OnInit {
     this.loadFeedback();
   }
 
+  onFilterChange() {
+    clearTimeout(this.filterTimer);
+    this.filterTimer = setTimeout(() => {
+      this.first = 0;
+      this.loadFeedback();
+    }, 400);
+  }
+
   clearSearch() {
+    clearTimeout(this.filterTimer);
     this.searchKeyword = '';
     this.statusFilter = '';
     this.jenisFeedbackFilter = '';
@@ -178,6 +191,29 @@ export class Feedback implements OnInit {
           severity: 'error',
           summary: 'Error',
           detail: err.error?.message || 'Gagal mengirim tanggapan feedback'
+        });
+      }
+    });
+  }
+
+  deleteFeedback(feedback: FeedbackUser) {
+    this.confirm.confirm({
+      message: `Hapus feedback "${feedback.Judul}"?`,
+      accept: () => {
+        this.loading = true;
+        this.mpadService.deleteFeedback(feedback.FeedbackID).subscribe({
+          next: () => {
+            this.msg.add({ severity: 'success', summary: 'Dihapus', detail: 'Feedback berhasil dihapus' });
+            this.loadFeedback();
+          },
+          error: (err) => {
+            this.loading = false;
+            this.msg.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.error?.message || 'Gagal menghapus feedback'
+            });
+          }
         });
       }
     });

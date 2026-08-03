@@ -151,6 +151,11 @@ const options = {
               type: 'string',
               example: 'Cara Membayar Pajak Daerah',
             },
+            deskripsi: {
+              type: 'string',
+              nullable: true,
+              example: 'Panduan singkat pembayaran pajak daerah.',
+            },
             tipe: {
               type: 'string',
               enum: ['video', 'teks', 'link', 'file'],
@@ -193,6 +198,11 @@ const options = {
             judul: {
               type: 'string',
               example: 'Cara Membayar Pajak Daerah',
+            },
+            deskripsi: {
+              type: 'string',
+              nullable: true,
+              example: 'Panduan singkat pembayaran pajak daerah.',
             },
             tipe: {
               type: 'string',

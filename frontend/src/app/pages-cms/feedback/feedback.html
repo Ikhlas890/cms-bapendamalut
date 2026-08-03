@@ -1,4 +1,5 @@
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
 <div class="card">
     <p-table
@@ -26,12 +27,13 @@
                 <div class="flex flex-col gap-2 md:flex-row md:items-center">
                     <p-iconfield>
                         <p-inputicon class="pi pi-search" />
-                        <input pInputText type="text" placeholder="Cari judul atau deskripsi" [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()" />
+                        <input pInputText type="text" placeholder="Cari judul atau deskripsi" [(ngModel)]="searchKeyword" (ngModelChange)="onFilterChange()" />
                     </p-iconfield>
 
                     <p-select
                         [options]="statusOptions"
                         [(ngModel)]="statusFilter"
+                        (ngModelChange)="onFilterChange()"
                         optionLabel="label"
                         optionValue="value"
                         appendTo="body"
@@ -41,6 +43,7 @@
                     <p-select
                         [options]="jenisFeedbackOptions"
                         [(ngModel)]="jenisFeedbackFilter"
+                        (ngModelChange)="onFilterChange()"
                         optionLabel="label"
                         optionValue="value"
                         appendTo="body"
@@ -48,7 +51,6 @@
                     ></p-select>
 
                     <div class="flex gap-2">
-                        <p-button label="Cari" icon="pi pi-search" (click)="onSearch()"></p-button>
                         <p-button label="Reset" icon="pi pi-times" severity="secondary" outlined (click)="clearSearch()"></p-button>
                     </div>
                 </div>
@@ -85,6 +87,7 @@
                     <div class="flex gap-2">
                         <!-- <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" (click)="showDetail(feedback)"></button> -->
                         <button pButton icon="pi pi-reply" label="Tanggapi" class="p-button-text p-button-sm" (click)="openReply(feedback)"></button>
+                        <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" (click)="deleteFeedback(feedback)"></button>
                     </div>
                 </td>
             </tr>

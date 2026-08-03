@@ -101,6 +101,12 @@ export class MpadService {
     });
   }
 
+  deleteFeedback(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/feedback/${id}`, {
+      headers: this.createApiHeaders()
+    });
+  }
+
   clearSession() {
     localStorage.removeItem(MPAD_API_KEY_STORAGE);
     localStorage.removeItem(MPAD_USER_STORAGE);
