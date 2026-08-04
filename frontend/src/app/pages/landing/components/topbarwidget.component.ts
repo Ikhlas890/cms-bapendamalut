@@ -58,7 +58,7 @@ import {AppFloatingConfigurator} from "@/layout/component/app.floatingconfigurat
                 </li>
             </ul>
             <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2">
-                <button pButton pRipple label="Login" routerLink="/auth/login" [rounded]="true" [text]="true"></button>
+                <button pButton pRipple label="Login" type="button" (click)="navigateToLogin()" [rounded]="true" [text]="true"></button>
                 <!-- <button pButton pRipple label="Register" routerLink="/auth/login" [rounded]="true"></button> -->
                 <app-floating-configurator [float]="false"/>
             </div>
@@ -66,4 +66,8 @@ import {AppFloatingConfigurator} from "@/layout/component/app.floatingconfigurat
 })
 export class TopbarWidget {
     constructor(public router: Router) {}
+
+    navigateToLogin() {
+        this.router.navigate(['/auth/login']);
+    }
 }

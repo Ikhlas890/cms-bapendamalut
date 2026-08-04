@@ -13,10 +13,10 @@ const menuRoutes = require('./routes/menuRoutes');
 const rolePermissionRoutes = require('./routes/rolePermissionRoutes');
 const panduanRoutes = require('./routes/panduanRoutes');
 const { getUploadFallbackUrl } = require('./utils/uploadUrl');
-const { swaggerUi, specs } = require('./swagger');
+const { specs } = require('./swagger');
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 const allowedOrigins = [
   'http://localhost:4200',
@@ -42,7 +42,44 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.get('/api-docs/swagger.json', (req, res) => {
+  res.json(specs);
+});
+
+app.get(['/api-docs', '/api-docs/'], (req, res) => {
+  res.type('html').send(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Malut CMS Docs</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function() {
+      window.ui = SwaggerUIBundle({
+        url: '/api-docs/swagger.json',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: 'StandaloneLayout'
+      });
+    };
+  </script>
+</body>
+</html>`);
+});
 app.use('/api/posts', postRoutes);
 app.use('/api/struktur-organisasi', strukturRoutes);
 app.use('/api/pengaduan', pengaduanRoutes);
@@ -64,5 +101,5 @@ app.use('/uploads', (req, res, next) => {
 });
 
 app.listen(PORT, HOST, () => {
-  console.log(`Server berjalan di http://192.168.100.6:${PORT}`);
+  console.log(`Server berjalan di port ${PORT}`);
 });

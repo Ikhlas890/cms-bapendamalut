@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 
@@ -15,7 +15,7 @@ import { RippleModule } from 'primeng/ripple';
             <div class="mx-6 md:mx-20 mt-0 md:mt-6">
                 <h1 class="text-6xl font-bold text-gray-900 leading-tight dark:!text-gray-700"><span class="font-light block">Badan Pendapatan Daerah</span>Provinsi Maluku Utara</h1>
                 <p class="font-normal text-2xl leading-normal md:mt-4 text-gray-700 dark:text-gray-700">Management Content Bapenda Malut: Pusat Informasi Resmi Pendapatan Daerah</p>
-                <button pButton pRipple [rounded]="true" type="button" label="Get Started" class="text-xl! mt-8 px-4!" routerLink="/auth/login"></button>
+                <button pButton pRipple [rounded]="true" type="button" label="Get Started" class="text-xl! mt-8 px-4!" (click)="navigateToLogin()"></button>
             </div>
             <div class="flex justify-center md:justify-end">
                 <img src="assets/img/halaman-berita.png" alt="Hero Image" class="w-9/12 md:w-auto" />
@@ -23,4 +23,10 @@ import { RippleModule } from 'primeng/ripple';
         </div>
     `
 })
-export class HeroWidget {}
+export class HeroWidget {
+    constructor(private router: Router) {}
+
+    navigateToLogin() {
+        this.router.navigate(['/auth/login']);
+    }
+}

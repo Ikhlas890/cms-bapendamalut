@@ -8,6 +8,10 @@ export const NoAuthGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
+  if (!localStorage.getItem('token')) {
+    return true;
+  }
+
   return auth.checkAuthFromServer().pipe(
     map(res => {
       if (res.loggedIn) {

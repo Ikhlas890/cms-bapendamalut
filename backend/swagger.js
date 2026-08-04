@@ -1,5 +1,8 @@
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
+
+const apiBaseUrl = process.env.API_BASE_URL || 'https://api-cmsmalut-dev.intermatika.id';
 
 const options = {
   definition: {
@@ -11,7 +14,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: apiBaseUrl,
       },
     ],
     components: {
@@ -337,7 +340,7 @@ const options = {
       },
     },
   },
-  apis: ['./routes/*.js'], // lokasi file route
+  apis: [path.join(__dirname, 'routes', '*.js')],
 };
 
 const specs = swaggerJsdoc(options);
